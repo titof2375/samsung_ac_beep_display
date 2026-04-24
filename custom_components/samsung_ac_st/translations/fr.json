@@ -5,13 +5,47 @@
         "title": "Samsung AC SmartThings",
         "description": "Entrez votre Personal Access Token SmartThings.\nCréez-en un sur https://account.smartthings.com/tokens\n(scopes requis : Devices — list, read, execute)",
         "data": { "token": "Token SmartThings" }
+      },
+      "reauth_confirm": {
+        "title": "Token révoqué",
+        "description": "Votre token a été révoqué. Générez-en un nouveau sur account.smartthings.com/tokens"
       }
     },
     "error": {
-      "invalid_auth": "Token invalide ou expiré",
+      "invalid_auth": "Token invalide ou révoqué",
       "cannot_connect": "Impossible de joindre SmartThings",
       "unknown": "Erreur inattendue"
     },
-    "abort": { "already_configured": "Déjà configuré" }
+    "abort": {
+      "already_configured": "Déjà configuré",
+      "reauth_successful": "Token mis à jour avec succès"
+    }
+  },
+  "entity": {
+    "climate": {
+      "samsung_ac": {
+        "state_attributes": {
+          "fan_mode": {
+            "state": {
+              "auto":   "Auto",
+              "low":    "Bas",
+              "medium": "Moyen",
+              "high":   "Élevé",
+              "turbo":  "Turbo"
+            }
+          },
+          "swing_mode": {
+            "state": {
+              "off":        "Fixe",
+              "fixed":      "Fixe",
+              "vertical":   "Vertical",
+              "horizontal": "Horizontal",
+              "both":       "Les deux",
+              "all":        "Les deux"
+            }
+          }
+        }
+      }
+    }
   }
 }
