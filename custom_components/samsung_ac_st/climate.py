@@ -104,10 +104,8 @@ class SamsungAcClimate(CoordinatorEntity[SamsungAcCoordinator], ClimateEntity):
 
     @property
     def target_temperature(self) -> float | None:
-        s = self._status()
-        if self.hvac_mode == HVACMode.HEAT:
-            return s.get("heat_setpoint")
-        return s.get("cool_setpoint")
+        # Samsung utilise un seul setpoint pour chaud et froid
+        return self._status().get("cool_setpoint")
 
     @property
     def current_humidity(self) -> int | None:
@@ -136,9 +134,7 @@ class SamsungAcClimate(CoordinatorEntity[SamsungAcCoordinator], ClimateEntity):
     async def async_set_temperature(self, **kwargs: Any) -> None:
         temp = kwargs.get(ATTR_TEMPERATURE)
         if temp is not None:
-            await self.coordinator.client.set_temperature(
-                self._device_id, temp, self.hvac_mode.value
-            )
+            await self.coordinator.client.set_temperature(self._device_id, temp)
             await self.coordinator.async_request_refresh()
 
     async def async_set_fan_mode(self, fan_mode: str) -> None:
