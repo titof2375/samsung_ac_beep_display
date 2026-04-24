@@ -1,48 +1,73 @@
-"""Config flow OAuth2 pour Samsung AC SmartThings."""
+"""Config flow pour Samsung AC SmartThings — token personnel (PAT)."""
 from __future__ import annotations
 
 import logging
 from typing import Any
 
-from homeassistant.config_entries import ConfigEntry
-from homeassistant.helpers.config_entry_oauth2_flow import AbstractOAuth2FlowHandler
+import aiohttp
+import voluptuous as vol
 
-from .application_credentials import SCOPES
-from .const import DOMAIN
+from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
+
+from .const import CONF_TOKEN, DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
+STEP_USER_SCHEMA = vol.Schema({
+    vol.Required(CONF_TOKEN): str,
+})
 
-class SamsungAcConfigFlow(AbstractOAuth2FlowHandler, domain=DOMAIN):
-    """Config flow OAuth2 — HA gère le refresh automatique du token."""
 
-    DOMAIN = DOMAIN
+class SamsungAcConfigFlow(ConfigFlow, domain=DOMAIN):
+    """Config flow — saisie du token personnel SmartThings."""
+
     VERSION = 1
 
-    @property
-    def logger(self) -> logging.Logger:
-        return _LOGGER
+    async def async_step_user(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        errors: dict[str, str] = {}
 
-    @property
-    def extra_authorize_data(self) -> dict:
-        return {"scope": " ".join(SCOPES)}
+        if user_input is not None:
+            token = user_input[CONF_TOKEN].strip()
+            session = async_get_clientsession(self.hass)
+            try:
+                async with session.get(
+                    "https://api.smartthings.com/v1/devices",
+                    headers={"Authorization": f"Bearer {token}"},
+                    timeout=aiohttp.ClientTimeout(total=10),
+                ) as r:
+                    if r.status == 401:
+                        errors["base"] = "invalid_auth"
+                    elif r.status != 200:
+                        errors["base"] = "cannot_connect"
+            except aiohttp.ClientError:
+                errors["base"] = "cannot_connect"
 
-    async def async_oauth_create_entry(self, data: dict[str, Any]) -> dict:
-        """Appelé après autorisation OAuth2 réussie."""
-        return self.async_create_entry(
-            title="Samsung AC (SmartThings)",
-            data=data,
+            if not errors:
+                await self.async_set_unique_id(f"samsung_ac_{token[:8]}")
+                self._abort_if_unique_id_configured()
+                return self.async_create_entry(
+                    title="Samsung AC SmartThings",
+                    data={CONF_TOKEN: token},
+                )
+
+        return self.async_show_form(
+            step_id="user",
+            data_schema=STEP_USER_SCHEMA,
+            errors=errors,
         )
 
     async def async_step_reauth(
         self, entry_data: dict[str, Any]
-    ) -> dict:
-        """Re-authentification si le refresh token est révoqué."""
+    ) -> ConfigFlowResult:
+        """Re-saisie du token si révoqué."""
         return await self.async_step_reauth_confirm()
 
     async def async_step_reauth_confirm(
         self, user_input: dict[str, Any] | None = None
-    ) -> dict:
+    ) -> ConfigFlowResult:
         if user_input is None:
             return self.async_show_form(step_id="reauth_confirm")
         return await self.async_step_user()

@@ -1,22 +1,25 @@
 {
   "config": {
     "step": {
-      "pick_implementation": {
+      "user": {
         "title": "Samsung AC SmartThings",
-        "description": "Connectez votre compte SmartThings via OAuth2.\nVous aurez besoin d'un Client ID et Client Secret depuis le portail développeur SmartThings."
+        "description": "Entrez votre **token personnel SmartThings** (PAT).\n\nPour en créer un :\n1. Allez sur [account.smartthings.com/tokens](https://account.smartthings.com/tokens)\n2. Cliquez **Générer un nouveau jeton**\n3. Cochez au minimum : `r:devices:*`, `x:devices:*`, `l:devices`\n4. Copiez le token et collez-le ici",
+        "data": {
+          "token": "Token personnel SmartThings"
+        }
       },
       "reauth_confirm": {
-        "title": "Re-connexion SmartThings requise",
-        "description": "Votre accès SmartThings a été révoqué. Veuillez vous reconnecter."
+        "title": "Token SmartThings révoqué",
+        "description": "Votre token a été révoqué. Veuillez en générer un nouveau sur account.smartthings.com/tokens"
       }
+    },
+    "error": {
+      "invalid_auth": "Token invalide ou révoqué",
+      "cannot_connect": "Impossible de joindre l'API SmartThings"
     },
     "abort": {
       "already_configured": "Déjà configuré",
-      "reauth_successful": "Re-authentification réussie",
-      "missing_scopes": "Scopes insuffisants — vérifiez les permissions de votre app SmartThings"
+      "reauth_successful": "Token mis à jour avec succès"
     }
-  },
-  "application_credentials": {
-    "description": "Pour obtenir vos identifiants OAuth2 SmartThings :\n1. Allez sur [developer.smartthings.com](https://developer.smartthings.com)\n2. Créez un projet → **Automation**\n3. Dans **App credentials**, copiez le **Client ID** et **Client Secret**\n4. Ajoutez comme redirect URI : `https://my.home-assistant.io/redirect/oauth`"
   }
 }

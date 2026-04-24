@@ -22,10 +22,10 @@ CAP_DUST_ALARM       = "samsungce.dustFilterAlarm"
 CAP_TROPICAL_NIGHT   = "custom.airConditionerTropicalNightMode"
 CAP_EXECUTE          = "execute"
 
-# OCF execute for display (Samsung naming is inverted!)
+# OCF execute — Samsung naming (display est inversé !)
 OCF_PATH        = "mode/vs/0"
-OPT_DISPLAY_OFF = "Light_On"   # Light_On  = display OFF
-OPT_DISPLAY_ON  = "Light_Off"  # Light_Off = display ON
+OPT_DISPLAY_OFF = "Light_On"   # Light_On  = écran éteint
+OPT_DISPLAY_ON  = "Light_Off"  # Light_Off = écran allumé
 
 # AC mode mapping: HA → SmartThings
 HA_TO_ST_MODE = {
@@ -59,9 +59,9 @@ ST_TO_HA_SWING = {v: k for k, v in HA_TO_ST_SWING.items()}
 # Optional mode (Wind-Free etc.)
 OPTIONAL_MODES = ["off", "sleep", "quiet", "speed", "windFree", "windFreeSleep"]
 
-# Filter status
+# Filter status icons
 FILTER_STATUS_ICONS = {
-    "normal": "mdi:air-filter",
-    "wash":   "mdi:alert",
+    "normal":  "mdi:air-filter",
+    "wash":    "mdi:alert",
     "replace": "mdi:alert-circle",
 }

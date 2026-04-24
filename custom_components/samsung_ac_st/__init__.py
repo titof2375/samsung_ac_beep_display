@@ -1,20 +1,15 @@
-"""Samsung AC SmartThings — OAuth2, refresh automatique du token."""
+"""Samsung AC SmartThings — authentification par token personnel (PAT)."""
 from __future__ import annotations
 
 import logging
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_ACCESS_TOKEN
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
-from homeassistant.helpers.config_entry_oauth2_flow import (
-    OAuth2Session,
-    async_get_config_entry_implementation,
-)
 
 from .api import SmartThingsApiClient, SmartThingsAuthError, SmartThingsConnectionError
-from .const import DOMAIN
+from .const import CONF_TOKEN, DOMAIN
 from .coordinator import SamsungAcCoordinator
 
 _LOGGER = logging.getLogger(__name__)
@@ -23,22 +18,13 @@ PLATFORMS = ["climate", "switch", "sensor", "select"]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    try:
-        implementation = await async_get_config_entry_implementation(hass, entry)
-    except KeyError:
-        # L'entrée a été créée sans OAuth2 — demande une re-authentification
-        raise ConfigEntryAuthFailed(
-            "Configuration OAuth2 incomplète. Veuillez supprimer et reconfigurer l'intégration."
-        )
-
-    oauth_session = OAuth2Session(hass, entry, implementation)
-
-    async def get_token() -> str:
-        """Retourne un access_token toujours valide (HA le rafraîchit si besoin)."""
-        await oauth_session.async_ensure_token_valid()
-        return oauth_session.token[CONF_ACCESS_TOKEN]
-
+    token = entry.data[CONF_TOKEN]
     session = async_get_clientsession(hass)
+
+    # Le token PAT SmartThings ne expire pas — on le passe directement
+    async def get_token() -> str:
+        return token
+
     client = SmartThingsApiClient(session, get_token)
 
     try:
