@@ -23,8 +23,14 @@ PLATFORMS = ["climate", "switch", "sensor", "select"]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    # Charge l'implémentation OAuth2 enregistrée (requis depuis HA 2024.x)
-    implementation = await async_get_config_entry_implementation(hass, entry)
+    try:
+        implementation = await async_get_config_entry_implementation(hass, entry)
+    except KeyError:
+        # L'entrée a été créée sans OAuth2 — demande une re-authentification
+        raise ConfigEntryAuthFailed(
+            "Configuration OAuth2 incomplète. Veuillez supprimer et reconfigurer l'intégration."
+        )
+
     oauth_session = OAuth2Session(hass, entry, implementation)
 
     async def get_token() -> str:
