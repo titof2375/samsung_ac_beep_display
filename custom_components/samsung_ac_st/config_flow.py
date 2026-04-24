@@ -1,10 +1,9 @@
-"""Config flow for Samsung AC Beep & Display."""
+"""Config flow for Samsung AC SmartThings."""
 from __future__ import annotations
 
 import logging
 from typing import Any
 
-import aiohttp
 import voluptuous as vol
 
 from homeassistant import config_entries
@@ -15,15 +14,9 @@ from .const import CONF_TOKEN, DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
-STEP_USER_SCHEMA = vol.Schema(
-    {
-        vol.Required(CONF_TOKEN): str,
-    }
-)
-
 
 class SamsungAcConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """Handle the config flow for Samsung AC Beep & Display."""
+    """Setup flow: just ask for the SmartThings PAT token."""
 
     VERSION = 1
 
@@ -34,9 +27,7 @@ class SamsungAcConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             token = user_input[CONF_TOKEN].strip()
-            session = async_get_clientsession(self.hass)
-            client = SmartThingsApiClient(token, session)
-
+            client = SmartThingsApiClient(token, async_get_clientsession(self.hass))
             try:
                 await client.validate_token()
             except SmartThingsAuthError:
@@ -44,19 +35,19 @@ class SamsungAcConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             except SmartThingsConnectionError:
                 errors["base"] = "cannot_connect"
             except Exception:
-                _LOGGER.exception("Unexpected error during SmartThings validation")
+                _LOGGER.exception("Unexpected error")
                 errors["base"] = "unknown"
 
             if not errors:
                 await self.async_set_unique_id(token[:8])
                 self._abort_if_unique_id_configured()
                 return self.async_create_entry(
-                    title="Samsung AC Beep & Display",
+                    title="Samsung AC (SmartThings)",
                     data={CONF_TOKEN: token},
                 )
 
         return self.async_show_form(
             step_id="user",
-            data_schema=STEP_USER_SCHEMA,
+            data_schema=vol.Schema({vol.Required(CONF_TOKEN): str}),
             errors=errors,
         )

@@ -1,9 +1,9 @@
-"""Switch entities: display and beep for each Samsung AC."""
+"""Switch entities: display and beep per Samsung AC."""
 from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import Any, Callable
+from typing import Any, Callable, Coroutine
 
 from homeassistant.components.switch import SwitchEntity, SwitchEntityDescription
 from homeassistant.config_entries import ConfigEntry
@@ -19,28 +19,25 @@ _LOGGER = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True, kw_only=True)
-class SamsungAcSwitchDescription(SwitchEntityDescription):
-    state_fn: Callable[[dict], bool | None]
-    turn_on_fn: Callable
-    turn_off_fn: Callable
+class SamsungAcSwitchDesc(SwitchEntityDescription):
+    turn_on_fn: Callable[..., Coroutine]
+    turn_off_fn: Callable[..., Coroutine]
 
 
-SWITCH_TYPES: tuple[SamsungAcSwitchDescription, ...] = (
-    SamsungAcSwitchDescription(
+SWITCHES: tuple[SamsungAcSwitchDesc, ...] = (
+    SamsungAcSwitchDesc(
         key="display",
         name="Écran",
         icon="mdi:television",
-        state_fn=lambda status: status.get("display"),
-        turn_on_fn=lambda client, did: client.set_display(did, True),
-        turn_off_fn=lambda client, did: client.set_display(did, False),
+        turn_on_fn=lambda c, did: c.set_display(did, True),
+        turn_off_fn=lambda c, did: c.set_display(did, False),
     ),
-    SamsungAcSwitchDescription(
+    SamsungAcSwitchDesc(
         key="beep",
         name="Bip",
         icon="mdi:volume-high",
-        state_fn=lambda status: status.get("beep"),
-        turn_on_fn=lambda client, did: client.set_beep(did, True),
-        turn_off_fn=lambda client, did: client.set_beep(did, False),
+        turn_on_fn=lambda c, did: c.set_beep(did, True),
+        turn_off_fn=lambda c, did: c.set_beep(did, False),
     ),
 )
 
@@ -51,58 +48,51 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     coordinator: SamsungAcCoordinator = hass.data[DOMAIN][entry.entry_id]
-    entities = []
-    for device in coordinator.devices:
-        for desc in SWITCH_TYPES:
-            entities.append(SamsungAcSwitch(coordinator, device, desc))
-    async_add_entities(entities)
+    async_add_entities(
+        SamsungAcSwitch(coordinator, device, desc)
+        for device in coordinator.devices
+        for desc in SWITCHES
+    )
 
 
 class SamsungAcSwitch(CoordinatorEntity[SamsungAcCoordinator], SwitchEntity):
-    """A switch that controls display or beep on a Samsung AC."""
+    """Display or beep switch for one Samsung AC unit."""
 
-    entity_description: SamsungAcSwitchDescription
+    entity_description: SamsungAcSwitchDesc
     _attr_has_entity_name = True
 
     def __init__(
         self,
         coordinator: SamsungAcCoordinator,
         device: dict,
-        description: SamsungAcSwitchDescription,
+        description: SamsungAcSwitchDesc,
     ) -> None:
         super().__init__(coordinator)
         self.entity_description = description
         self._device_id = device["device_id"]
-        self._device_label = device["label"]
+        self._label = device["label"]
         self._attr_unique_id = f"{self._device_id}_{description.key}"
-        # Optimistic state when SmartThings can't return current value
-        self._optimistic_state: bool | None = None
+        self._optimistic: bool | None = None
 
     @property
     def device_info(self) -> DeviceInfo:
         return DeviceInfo(
             identifiers={(DOMAIN, self._device_id)},
-            name=self._device_label,
+            name=self._label,
             manufacturer="Samsung",
             model="Air Conditioner",
         )
 
     @property
     def is_on(self) -> bool | None:
-        coordinator_state = self.entity_description.state_fn(
-            self.coordinator.data.get(self._device_id, {})
-        )
-        # Prefer coordinator data; fall back to optimistic state
-        if coordinator_state is not None:
-            return coordinator_state
-        return self._optimistic_state
+        return self._optimistic
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         await self.entity_description.turn_on_fn(self.coordinator.client, self._device_id)
-        self._optimistic_state = True
+        self._optimistic = True
         self.async_write_ha_state()
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         await self.entity_description.turn_off_fn(self.coordinator.client, self._device_id)
-        self._optimistic_state = False
+        self._optimistic = False
         self.async_write_ha_state()

@@ -1,109 +1,64 @@
-# Samsung AC Beep & Display — Intégration HACS
+# Samsung AC SmartThings — Intégration HACS complète
 
-Contrôlez le **bip sonore** et l'**écran d'affichage** de vos climatiseurs Samsung depuis Home Assistant, via l'API SmartThings.
+Contrôlez **complètement** vos climatiseurs Samsung depuis Home Assistant via l'API SmartThings.  
+Remplace ESPHome + l'intégration SmartThings native, avec en **bonus** le contrôle du bip et de l'écran.
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/integration)
 
 ---
 
-## Fonctionnalités
+## Entités créées par climatiseur
 
-Pour chaque climatiseur Samsung détecté dans SmartThings, l'intégration crée **2 switchs** :
-
-| Entité | Icône | Description |
-|--------|-------|-------------|
-| `switch.XXX_ecran` | 📺 | Allume/éteint l'affichage de la télécommande murale |
-| `switch.XXX_bip` | 🔊 | Active/désactive le bip à chaque changement de consigne |
-
----
-
-## Prérequis
-
-- Home Assistant **2024.1+**
-- HACS installé
-- Climatiseur(s) Samsung connecté(s) à **SmartThings**
-- Un **Personal Access Token** SmartThings
+| Type | Entité | Description |
+|------|--------|-------------|
+| 🌡️ Climate | `climate.XXX` | On/Off, température, mode, ventilateur, swing |
+| 📺 Switch | `switch.XXX_ecran` | Allume/éteint l'écran de la console murale |
+| 🔊 Switch | `switch.XXX_bip` | Active/désactive le bip sonore |
+| 💧 Sensor | `sensor.XXX_humidite` | Humidité de la pièce (%) |
 
 ---
 
-## Installation via HACS
+## Modes supportés
 
-1. Ouvrez HACS → **Intégrations** → Menu (⋮) → **Dépôts personnalisés**
-2. Ajoutez l'URL : `https://github.com/christophe-havard/samsung_ac_beep_display`  
-   Catégorie : **Intégration**
-3. Cherchez **Samsung AC Beep & Display** → **Télécharger**
-4. Redémarrez Home Assistant
+| Mode HA | Mode Samsung |
+|---------|-------------|
+| Froid (`cool`) | cool |
+| Chaud (`heat`) | heat |
+| Auto | auto |
+| Ventilation (`fan_only`) | wind |
+| Déshumidification (`dry`) | dry |
+| Éteint (`off`) | — |
+
+**Vitesses ventilateur** : auto, low, medium, high, turbo  
+**Swing** : off, vertical, horizontal, both
 
 ---
 
-## Configuration
+## Installation
 
 ### 1. Créer un Token SmartThings
 
 1. Allez sur [account.smartthings.com/tokens](https://account.smartthings.com/tokens)
-2. Cliquez **Generate new token**
-3. Donnez un nom (ex: `home-assistant`)
-4. Cochez les scopes : **Devices (list, read, execute)**
-5. Copiez le token généré
+2. **Generate new token** → nom : `home-assistant`
+3. Cochez : **Devices** (list, read, execute)
+4. Copiez le token
 
-### 2. Ajouter l'intégration dans HA
+### 2. Installer via HACS
 
-1. **Paramètres** → **Appareils & Services** → **Ajouter une intégration**
-2. Cherchez **Samsung AC Beep & Display**
-3. Collez votre token SmartThings
-4. Validez — vos climatiseurs apparaissent automatiquement
+1. HACS → Intégrations → `⋮` → **Dépôts personnalisés**
+2. URL : `https://github.com/titof2375/samsung_ac_beep_display`  
+   Catégorie : **Intégration**
+3. Cherchez **Samsung AC SmartThings** → Télécharger
+4. Redémarrez Home Assistant
 
----
+### 3. Configurer
 
-## Utilisation
-
-### Couper le bip et l'écran automatiquement (Automation)
-
-```yaml
-alias: "Samsung AC — Couper bip et écran la nuit"
-trigger:
-  - platform: time
-    at: "22:00:00"
-action:
-  - service: switch.turn_off
-    target:
-      entity_id:
-        - switch.parental_bip
-        - switch.parental_ecran
-        - switch.cloe_bip
-        - switch.cloe_ecran
-        - switch.clement_bip
-        - switch.clement_ecran
-```
+**Paramètres** → **Appareils & Services** → **Ajouter une intégration** → **Samsung AC SmartThings** → collez votre token.
 
 ---
 
 ## Notes techniques
 
-La commande utilise la capability OCF `execute` de SmartThings avec l'option propriétaire Samsung :
-
-```json
-{
-  "commands": [{
-    "component": "main",
-    "capability": "execute",
-    "command": "execute",
-    "arguments": ["mode/vs/0", {"x.com.samsung.da.options": ["Light_On"]}]
-  }]
-}
-```
-
-> ⚠️ Attention : le nommage Samsung est inversé — `Light_On` éteint l'écran, `Light_Off` l'allume.
-
----
-
-## Compatibilité
-
-Testé sur climatiseurs Samsung **Wind-Free** (protocole NASA via SmartThings).  
-Devrait fonctionner sur tout modèle Samsung connecté à SmartThings.
-
----
-
-## Licence
-
-MIT
+- Polling SmartThings toutes les **30 secondes**
+- Bip/Écran via capability OCF `execute` (`x.com.samsung.da.options`)
+- Testé sur Samsung Wind-Free (protocole NASA)

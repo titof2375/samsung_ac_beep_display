@@ -1,4 +1,4 @@
-"""Samsung AC Beep & Display — HACS integration."""
+"""Samsung AC SmartThings — intégration HACS complète."""
 from __future__ import annotations
 
 import logging
@@ -13,13 +13,12 @@ from .coordinator import SamsungAcCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
-PLATFORMS = ["switch"]
+PLATFORMS = ["climate", "switch", "sensor"]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    token = entry.data[CONF_TOKEN]
     session = async_get_clientsession(hass)
-    client = SmartThingsApiClient(token, session)
+    client = SmartThingsApiClient(entry.data[CONF_TOKEN], session)
 
     try:
         devices = await client.get_ac_devices()
@@ -28,7 +27,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         return False
 
     if not devices:
-        _LOGGER.warning("No Samsung AC devices found in SmartThings")
+        _LOGGER.warning("No Samsung AC devices found in SmartThings account")
 
     coordinator = SamsungAcCoordinator(hass, client, devices)
     await coordinator.async_config_entry_first_refresh()

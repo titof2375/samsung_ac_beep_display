@@ -1,0 +1,17 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Samsung AC SmartThings",
+        "description": "Entrez votre Personal Access Token SmartThings.\nCréez-en un sur https://account.smartthings.com/tokens\n(scopes requis : Devices — list, read, execute)",
+        "data": { "token": "Token SmartThings" }
+      }
+    },
+    "error": {
+      "invalid_auth": "Token invalide ou expiré",
+      "cannot_connect": "Impossible de joindre SmartThings",
+      "unknown": "Erreur inattendue"
+    },
+    "abort": { "already_configured": "Déjà configuré" }
+  }
+}

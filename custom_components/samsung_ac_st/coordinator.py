@@ -1,4 +1,4 @@
-"""DataUpdateCoordinator for Samsung AC Beep & Display."""
+"""DataUpdateCoordinator for Samsung AC ST."""
 from __future__ import annotations
 
 import logging
@@ -13,10 +13,15 @@ from .const import DOMAIN, POLL_INTERVAL
 _LOGGER = logging.getLogger(__name__)
 
 
-class SamsungAcCoordinator(DataUpdateCoordinator):
-    """Polls SmartThings for display/beep state of all AC devices."""
+class SamsungAcCoordinator(DataUpdateCoordinator[dict]):
+    """Polls SmartThings every 30s for all AC devices."""
 
-    def __init__(self, hass: HomeAssistant, client: SmartThingsApiClient, devices: list[dict]) -> None:
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        client: SmartThingsApiClient,
+        devices: list[dict],
+    ) -> None:
         super().__init__(
             hass,
             _LOGGER,
@@ -24,15 +29,15 @@ class SamsungAcCoordinator(DataUpdateCoordinator):
             update_interval=timedelta(seconds=POLL_INTERVAL),
         )
         self.client = client
-        self.devices = devices  # list of {device_id, label, capabilities}
+        self.devices = devices  # [{device_id, label, capabilities}]
 
     async def _async_update_data(self) -> dict:
-        """Fetch status for all AC devices. Returns {device_id: {display, beep}}."""
-        result = {}
+        """Returns {device_id: status_dict} for all AC devices."""
+        result: dict = {}
         for dev in self.devices:
             did = dev["device_id"]
             try:
-                result[did] = await self.client.get_device_status(did)
+                result[did] = await self.client.get_status(did)
             except SmartThingsConnectionError as err:
                 raise UpdateFailed(f"SmartThings unreachable: {err}") from err
         return result
