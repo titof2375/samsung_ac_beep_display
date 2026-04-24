@@ -235,4 +235,4 @@ class SmartThingsApiClient:
     # ------------------------------------------------------------------
 
     async def start_self_check(self, device_id: str) -> None:
-        await self._command(device_id, [self._cmd(CAP_SELF_CHECK, "start")])
+        await self._command(device_id, [self._cmd(CAP_SELF_CHECK, "startSelfCheck")])
