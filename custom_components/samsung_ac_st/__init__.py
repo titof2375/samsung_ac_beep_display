@@ -8,7 +8,10 @@ from homeassistant.const import CONF_ACCESS_TOKEN
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
-from homeassistant.helpers.config_entry_oauth2_flow import OAuth2Session
+from homeassistant.helpers.config_entry_oauth2_flow import (
+    OAuth2Session,
+    async_get_config_entry_implementation,
+)
 
 from .api import SmartThingsApiClient, SmartThingsAuthError, SmartThingsConnectionError
 from .const import DOMAIN
@@ -20,8 +23,9 @@ PLATFORMS = ["climate", "switch", "sensor", "select"]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    # Session OAuth2 gérée par HA — rafraîchit le token automatiquement
-    oauth_session = OAuth2Session(hass, entry)
+    # Charge l'implémentation OAuth2 enregistrée (requis depuis HA 2024.x)
+    implementation = await async_get_config_entry_implementation(hass, entry)
+    oauth_session = OAuth2Session(hass, entry, implementation)
 
     async def get_token() -> str:
         """Retourne un access_token toujours valide (HA le rafraîchit si besoin)."""
