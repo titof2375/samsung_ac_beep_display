@@ -1,39 +1,22 @@
 {
   "config": {
     "step": {
-      "user": {
+      "pick_implementation": {
         "title": "Samsung AC SmartThings",
-        "description": "Entrez votre Personal Access Token SmartThings.\nCréez-en un sur https://account.smartthings.com/tokens\n⚠️ Choisissez **Never** comme expiration !",
-        "data": { "token": "Token SmartThings" }
+        "description": "Connectez votre compte SmartThings via OAuth2.\nVous aurez besoin d'un Client ID et Client Secret depuis le portail développeur SmartThings."
       },
       "reauth_confirm": {
-        "title": "Token SmartThings expiré",
-        "description": "Votre token a expiré. Créez-en un nouveau sur https://account.smartthings.com/tokens en choisissant **Never** comme expiration.",
-        "data": { "token": "Nouveau token SmartThings" }
+        "title": "Re-connexion SmartThings requise",
+        "description": "Votre accès SmartThings a été révoqué. Veuillez vous reconnecter."
       }
-    },
-    "error": {
-      "invalid_auth": "Token invalide ou expiré",
-      "cannot_connect": "Impossible de joindre SmartThings",
-      "unknown": "Erreur inattendue"
     },
     "abort": {
       "already_configured": "Déjà configuré",
-      "reauth_successful": "Re-authentification réussie"
+      "reauth_successful": "Re-authentification réussie",
+      "missing_scopes": "Scopes insuffisants — vérifiez les permissions de votre app SmartThings"
     }
   },
-  "options": {
-    "step": {
-      "init": {
-        "title": "Mettre à jour le token",
-        "description": "Remplacez le token SmartThings si nécessaire.\nChoisissez **Never** comme expiration sur account.smartthings.com/tokens",
-        "data": { "token": "Token SmartThings" }
-      }
-    },
-    "error": {
-      "invalid_auth": "Token invalide ou expiré",
-      "cannot_connect": "Impossible de joindre SmartThings",
-      "unknown": "Erreur inattendue"
-    }
+  "application_credentials": {
+    "description": "Pour obtenir vos identifiants OAuth2 SmartThings :\n1. Allez sur [developer.smartthings.com](https://developer.smartthings.com)\n2. Créez un projet → **Automation**\n3. Dans **App credentials**, copiez le **Client ID** et **Client Secret**\n4. Ajoutez comme redirect URI : `https://my.home-assistant.io/redirect/oauth`"
   }
 }

@@ -1,12 +1,12 @@
 {
   "domain": "samsung_ac_st",
   "name": "Samsung AC SmartThings",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "config_flow": true,
   "documentation": "https://github.com/titof2375/samsung_ac_beep_display",
   "issue_tracker": "https://github.com/titof2375/samsung_ac_beep_display/issues",
   "requirements": [],
-  "dependencies": [],
+  "dependencies": ["application_credentials"],
   "codeowners": ["@titof2375"],
   "iot_class": "cloud_polling"
 }

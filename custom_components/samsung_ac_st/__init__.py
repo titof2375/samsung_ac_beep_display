@@ -1,15 +1,17 @@
-"""Samsung AC SmartThings — intégration HACS complète."""
+"""Samsung AC SmartThings — OAuth2, refresh automatique du token."""
 from __future__ import annotations
 
 import logging
 
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import CONF_ACCESS_TOKEN
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import ConfigEntryAuthFailed
+from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.config_entry_oauth2_flow import OAuth2Session
 
 from .api import SmartThingsApiClient, SmartThingsAuthError, SmartThingsConnectionError
-from .const import CONF_TOKEN, DOMAIN
+from .const import DOMAIN
 from .coordinator import SamsungAcCoordinator
 
 _LOGGER = logging.getLogger(__name__)
@@ -18,20 +20,26 @@ PLATFORMS = ["climate", "switch", "sensor", "select"]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    # Session OAuth2 gérée par HA — rafraîchit le token automatiquement
+    oauth_session = OAuth2Session(hass, entry)
+
+    async def get_token() -> str:
+        """Retourne un access_token toujours valide (HA le rafraîchit si besoin)."""
+        await oauth_session.async_ensure_token_valid()
+        return oauth_session.token[CONF_ACCESS_TOKEN]
+
     session = async_get_clientsession(hass)
-    client = SmartThingsApiClient(entry.data[CONF_TOKEN], session)
+    client = SmartThingsApiClient(session, get_token)
 
     try:
         devices = await client.get_ac_devices()
     except SmartThingsAuthError as err:
-        # Token expired or invalid → HA affiche une notification de re-auth
         raise ConfigEntryAuthFailed(str(err)) from err
     except SmartThingsConnectionError as err:
-        _LOGGER.error("Cannot connect to SmartThings: %s", err)
-        return False
+        raise ConfigEntryNotReady(str(err)) from err
 
     if not devices:
-        _LOGGER.warning("No Samsung AC devices found in SmartThings account")
+        _LOGGER.warning("Aucun climatiseur Samsung trouvé dans SmartThings")
 
     coordinator = SamsungAcCoordinator(hass, client, devices)
     await coordinator.async_config_entry_first_refresh()
