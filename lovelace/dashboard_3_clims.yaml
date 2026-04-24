@@ -1,8 +1,6 @@
 # ============================================================
 # Dashboard complet — 3 climatiseurs Samsung
-# ============================================================
-# Copiez ce contenu dans un nouveau tableau de bord HA
-# ou ajoutez-le dans un onglet existant
+# Style : thermostat standard HA avec icônes
 # ============================================================
 
 title: Climatisation
@@ -18,34 +16,59 @@ views:
         cards:
           - type: thermostat
             entity: climate.climatiseur_de_cloe
-            name: "❄️ Chambre Cloé"
+            name: Clim Cloé
             features:
               - type: climate-hvac-modes
-                hvac_modes: ["off", cool, heat, auto, dry, fan_only]
+                style: icons
+                hvac_modes:
+                  - "off"
+                  - cool
+                  - heat
+                  - auto
+                  - dry
+                  - fan_only
               - type: climate-fan-modes
-                style: dropdown
-                fan_modes: [auto, low, medium, high, turbo]
+                style: icons
+                fan_modes:
+                  - auto
+                  - low
+                  - medium
+                  - high
+                  - turbo
               - type: climate-swing-modes
                 style: dropdown
-                swing_modes: ["off", vertical, horizontal, both]
+                swing_modes:
+                  - "off"
+                  - vertical
+                  - horizontal
+                  - both
 
           - type: entities
             show_header_toggle: false
             entities:
               - entity: select.climatiseur_de_cloe_mode_special
                 name: Mode spécial
+                icon: mdi:wind-power
+              - type: divider
               - entity: switch.climatiseur_de_cloe_ecran
                 name: Écran
+                icon: mdi:television
               - entity: switch.climatiseur_de_cloe_bip
                 name: Bip sonore
+                icon: mdi:volume-high
               - entity: switch.climatiseur_de_cloe_nettoyage_auto
-                name: Nettoyage auto
+                name: Nettoyage automatique
+                icon: mdi:shimmer
+              - type: divider
               - entity: sensor.climatiseur_de_cloe_humidite
                 name: Humidité
+                icon: mdi:water-percent
               - entity: sensor.climatiseur_de_cloe_filtre_statut
-                name: État filtre
+                name: État du filtre
+                icon: mdi:air-filter
               - entity: sensor.climatiseur_de_cloe_filtre_usage
-                name: Usure filtre
+                name: Usure du filtre
+                icon: mdi:percent
 
       # ======================================================
       # Climatiseur Parental
@@ -54,34 +77,59 @@ views:
         cards:
           - type: thermostat
             entity: climate.climatiseur_parental
-            name: "❄️ Chambre Parentale"
+            name: Clim Parentale
             features:
               - type: climate-hvac-modes
-                hvac_modes: ["off", cool, heat, auto, dry, fan_only]
+                style: icons
+                hvac_modes:
+                  - "off"
+                  - cool
+                  - heat
+                  - auto
+                  - dry
+                  - fan_only
               - type: climate-fan-modes
-                style: dropdown
-                fan_modes: [auto, low, medium, high, turbo]
+                style: icons
+                fan_modes:
+                  - auto
+                  - low
+                  - medium
+                  - high
+                  - turbo
               - type: climate-swing-modes
                 style: dropdown
-                swing_modes: ["off", vertical, horizontal, both]
+                swing_modes:
+                  - "off"
+                  - vertical
+                  - horizontal
+                  - both
 
           - type: entities
             show_header_toggle: false
             entities:
               - entity: select.climatiseur_parental_mode_special
                 name: Mode spécial
+                icon: mdi:wind-power
+              - type: divider
               - entity: switch.climatiseur_parental_ecran
                 name: Écran
+                icon: mdi:television
               - entity: switch.climatiseur_parental_bip
                 name: Bip sonore
+                icon: mdi:volume-high
               - entity: switch.climatiseur_parental_nettoyage_auto
-                name: Nettoyage auto
+                name: Nettoyage automatique
+                icon: mdi:shimmer
+              - type: divider
               - entity: sensor.climatiseur_parental_humidite
                 name: Humidité
+                icon: mdi:water-percent
               - entity: sensor.climatiseur_parental_filtre_statut
-                name: État filtre
+                name: État du filtre
+                icon: mdi:air-filter
               - entity: sensor.climatiseur_parental_filtre_usage
-                name: Usure filtre
+                name: Usure du filtre
+                icon: mdi:percent
 
       # ======================================================
       # Climatiseur de Clément
@@ -90,31 +138,56 @@ views:
         cards:
           - type: thermostat
             entity: climate.climatiseur_de_clement
-            name: "❄️ Chambre Clément"
+            name: Clim Clément
             features:
               - type: climate-hvac-modes
-                hvac_modes: ["off", cool, heat, auto, dry, fan_only]
+                style: icons
+                hvac_modes:
+                  - "off"
+                  - cool
+                  - heat
+                  - auto
+                  - dry
+                  - fan_only
               - type: climate-fan-modes
-                style: dropdown
-                fan_modes: [auto, low, medium, high, turbo]
+                style: icons
+                fan_modes:
+                  - auto
+                  - low
+                  - medium
+                  - high
+                  - turbo
               - type: climate-swing-modes
                 style: dropdown
-                swing_modes: ["off", vertical, horizontal, both]
+                swing_modes:
+                  - "off"
+                  - vertical
+                  - horizontal
+                  - both
 
           - type: entities
             show_header_toggle: false
             entities:
               - entity: select.climatiseur_de_clement_mode_special
                 name: Mode spécial
+                icon: mdi:wind-power
+              - type: divider
               - entity: switch.climatiseur_de_clement_ecran
                 name: Écran
+                icon: mdi:television
               - entity: switch.climatiseur_de_clement_bip
                 name: Bip sonore
+                icon: mdi:volume-high
               - entity: switch.climatiseur_de_clement_nettoyage_auto
-                name: Nettoyage auto
+                name: Nettoyage automatique
+                icon: mdi:shimmer
+              - type: divider
               - entity: sensor.climatiseur_de_clement_humidite
                 name: Humidité
+                icon: mdi:water-percent
               - entity: sensor.climatiseur_de_clement_filtre_statut
-                name: État filtre
+                name: État du filtre
+                icon: mdi:air-filter
               - entity: sensor.climatiseur_de_clement_filtre_usage
-                name: Usure filtre
+                name: Usure du filtre
+                icon: mdi:percent
