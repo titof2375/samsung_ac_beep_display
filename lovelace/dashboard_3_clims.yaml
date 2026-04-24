@@ -72,9 +72,6 @@ views:
               - entity: sensor.climatiseur_de_cloe_filtre_capacite
                 name: Capacité filtre
                 icon: mdi:timer-outline
-              - entity: sensor.climatiseur_de_cloe_filtre_dernier_reset
-                name: Dernier reset filtre
-                icon: mdi:calendar-check
               - entity: select.climatiseur_de_cloe_filtre_seuil_alarme
                 name: Seuil alarme filtre
                 icon: mdi:filter-cog
@@ -162,9 +159,6 @@ views:
               - entity: sensor.climatiseur_parental_filtre_capacite
                 name: Capacité filtre
                 icon: mdi:timer-outline
-              - entity: sensor.climatiseur_parental_filtre_dernier_reset
-                name: Dernier reset filtre
-                icon: mdi:calendar-check
               - entity: select.climatiseur_parental_filtre_seuil_alarme
                 name: Seuil alarme filtre
                 icon: mdi:filter-cog
@@ -252,9 +246,6 @@ views:
               - entity: sensor.climatiseur_de_clement_filtre_capacite
                 name: Capacité filtre
                 icon: mdi:timer-outline
-              - entity: sensor.climatiseur_de_clement_filtre_dernier_reset
-                name: Dernier reset filtre
-                icon: mdi:calendar-check
               - entity: select.climatiseur_de_clement_filtre_seuil_alarme
                 name: Seuil alarme filtre
                 icon: mdi:filter-cog

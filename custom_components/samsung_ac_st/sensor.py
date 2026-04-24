@@ -68,14 +68,6 @@ SENSORS: tuple[SamsungAcSensorDesc, ...] = (
         available_fn=lambda s: s.get("filter_capacity") is not None,
     ),
     SamsungAcSensorDesc(
-        key="filter_last_reset",
-        name="Filtre dernier reset",
-        icon="mdi:calendar-check",
-        device_class=SensorDeviceClass.DATE,
-        value_fn=lambda s: s.get("filter_last_reset"),
-        available_fn=lambda s: s.get("filter_last_reset") is not None,
-    ),
-    SamsungAcSensorDesc(
         key="tropical_night_level",
         name="Nuit tropicale niveau",
         icon="mdi:weather-night",
