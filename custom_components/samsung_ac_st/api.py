@@ -171,11 +171,18 @@ class SmartThingsApiClient:
         await self._command(device_id, [self._cmd(CAP_OPTIONAL_MODE, "setAcOptionalMode", [mode])])
 
     # ------------------------------------------------------------------
-    # Bip — via audioVolume (0=muet, 100=activé)
+    # Bip — via OCF execute (Volume_Mute / Volume_100)
+    # Identique au script samsung_ac_cloud.py de production
     # ------------------------------------------------------------------
 
     async def set_beep(self, device_id: str, on: bool) -> None:
-        await self._command(device_id, [self._cmd(CAP_AUDIO_VOLUME, "setVolume", [100 if on else 0])])
+        option = "Volume_100" if on else "Volume_Mute"
+        await self._command(device_id, [{
+            "component": "main",
+            "capability": CAP_EXECUTE,
+            "command": "execute",
+            "arguments": [OCF_PATH, {"x.com.samsung.da.options": [option]}],
+        }])
 
     # ------------------------------------------------------------------
     # Écran — via OCF execute

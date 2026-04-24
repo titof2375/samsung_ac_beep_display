@@ -40,7 +40,7 @@ SWITCHES: tuple[SamsungAcSwitchDesc, ...] = (
         icon="mdi:volume-high",
         turn_on_fn=lambda c, did: c.set_beep(did, True),
         turn_off_fn=lambda c, did: c.set_beep(did, False),
-        state_fn=lambda s: (s["volume"] > 0) if s.get("volume") is not None else None,
+        # état non lisible via OCF — optimiste uniquement
     ),
     SamsungAcSwitchDesc(
         key="auto_cleaning",
