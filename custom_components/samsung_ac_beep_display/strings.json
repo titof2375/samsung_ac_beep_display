@@ -1,0 +1,21 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Samsung AC Beep & Display",
+        "description": "Entrez votre Personal Access Token SmartThings.\nCréez-en un sur https://account.smartthings.com/tokens",
+        "data": {
+          "token": "Token SmartThings"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Token invalide ou expiré",
+      "cannot_connect": "Impossible de joindre SmartThings",
+      "unknown": "Erreur inattendue"
+    },
+    "abort": {
+      "already_configured": "Déjà configuré"
+    }
+  }
+}

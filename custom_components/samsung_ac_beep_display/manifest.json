@@ -1,0 +1,12 @@
+{
+  "domain": "samsung_ac_beep_display",
+  "name": "Samsung AC Beep & Display",
+  "version": "1.0.0",
+  "config_flow": true,
+  "documentation": "https://github.com/christophe-havard/samsung_ac_beep_display",
+  "issue_tracker": "https://github.com/christophe-havard/samsung_ac_beep_display/issues",
+  "requirements": [],
+  "dependencies": [],
+  "codeowners": ["@christophe-havard"],
+  "iot_class": "cloud_polling"
+}
