@@ -1,0 +1,83 @@
+# ============================================================
+# Carte Lovelace — Samsung AC SmartThings
+# ============================================================
+# Remplacez NOM_CLIM par le nom de votre climatiseur, ex:
+#   climatiseur_de_cloe
+#   climatiseur_parental
+#   climatiseur_de_clement
+#
+# Pour ajouter cette carte dans HA :
+#   Tableau de bord → Modifier → Ajouter une carte → Manuel
+#   Collez le contenu ci-dessous en remplaçant NOM_CLIM
+# ============================================================
+
+type: vertical-stack
+cards:
+
+  # --- Thermostat principal ---
+  - type: thermostat
+    entity: climate.NOM_CLIM
+    name: Climatiseur
+    features:
+      - type: climate-hvac-modes
+        hvac_modes:
+          - "off"
+          - cool
+          - heat
+          - auto
+          - dry
+          - fan_only
+      - type: climate-fan-modes
+        style: dropdown
+        fan_modes:
+          - auto
+          - low
+          - medium
+          - high
+          - turbo
+      - type: climate-swing-modes
+        style: dropdown
+        swing_modes:
+          - "off"
+          - vertical
+          - horizontal
+          - both
+
+  # --- Mode spécial (Wind-Free, Sommeil, etc.) ---
+  - type: entities
+    title: Mode spécial
+    show_header_toggle: false
+    entities:
+      - entity: select.NOM_CLIM_mode_special
+        name: Mode
+        icon: mdi:wind-power
+
+  # --- Contrôles (Écran, Bip, Nettoyage) ---
+  - type: entities
+    title: Contrôles
+    show_header_toggle: false
+    entities:
+      - entity: switch.NOM_CLIM_ecran
+        name: Écran
+        icon: mdi:television
+      - entity: switch.NOM_CLIM_bip
+        name: Bip sonore
+        icon: mdi:volume-high
+      - entity: switch.NOM_CLIM_nettoyage_auto
+        name: Nettoyage automatique
+        icon: mdi:shimmer
+
+  # --- Capteurs ---
+  - type: entities
+    title: Informations
+    show_header_toggle: false
+    entities:
+      - entity: sensor.NOM_CLIM_humidite
+        name: Humidité
+        icon: mdi:water-percent
+      - entity: sensor.NOM_CLIM_filtre_statut
+        name: État du filtre
+        icon: mdi:air-filter
+      - entity: sensor.NOM_CLIM_filtre_usage
+        name: Usure du filtre
+        icon: mdi:percent
