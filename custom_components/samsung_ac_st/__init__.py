@@ -2,7 +2,9 @@
 from __future__ import annotations
 
 import logging
+import pathlib
 
+from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
@@ -15,13 +17,30 @@ from .coordinator import SamsungAcCoordinator
 _LOGGER = logging.getLogger(__name__)
 
 PLATFORMS = ["climate", "switch", "sensor", "select"]
+_WWW_DIR = pathlib.Path(__file__).parent / "www"
+_CARD_URL = f"/{DOMAIN}/samsung-ac-card.js"
+_CARD_REGISTERED = False
+
+
+async def async_setup(hass: HomeAssistant, config: dict) -> bool:
+    """Enregistre la carte Lovelace personnalisée au démarrage."""
+    global _CARD_REGISTERED
+    if not _CARD_REGISTERED:
+        try:
+            await hass.http.async_register_static_paths([
+                StaticPathConfig(_CARD_URL, str(_WWW_DIR / "samsung-ac-card.js"), False)
+            ])
+            _CARD_REGISTERED = True
+            _LOGGER.info("Samsung AC Card enregistrée : %s", _CARD_URL)
+        except Exception as err:
+            _LOGGER.warning("Impossible d'enregistrer la carte JS : %s", err)
+    return True
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     token = entry.data[CONF_TOKEN]
     session = async_get_clientsession(hass)
 
-    # Le token PAT SmartThings ne expire pas — on le passe directement
     async def get_token() -> str:
         return token
 
