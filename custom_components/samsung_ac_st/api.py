@@ -8,9 +8,9 @@ import aiohttp
 
 from .const import (
     CAP_AC_MODE, CAP_AUDIO_VOLUME, CAP_AUTO_CLEANING, CAP_COOL_SETPOINT,
-    CAP_DUST_FILTER, CAP_EXECUTE, CAP_FAN_MODE, CAP_HUMIDITY,
-    CAP_OPTIONAL_MODE, CAP_SWING, CAP_SWITCH, CAP_TEMP, CAP_TROPICAL_NIGHT,
-    HA_TO_ST_FAN, HA_TO_ST_MODE, HA_TO_ST_SWING,
+    CAP_DUST_ALARM, CAP_DUST_FILTER, CAP_EXECUTE, CAP_FAN_MODE, CAP_HUMIDITY,
+    CAP_OPTIONAL_MODE, CAP_SELF_CHECK, CAP_SWING, CAP_SWITCH, CAP_TEMP,
+    CAP_TROPICAL_NIGHT, HA_TO_ST_FAN, HA_TO_ST_MODE, HA_TO_ST_SWING,
     OCF_PATH, OPT_DISPLAY_OFF, OPT_DISPLAY_ON, ST_API_BASE,
 )
 
@@ -131,10 +131,18 @@ class SmartThingsApiClient:
             state["auto_cleaning"]       = _val(CAP_AUTO_CLEANING, "autoCleaningMode") == "on"
             state["auto_cleaning_state"] = _val(CAP_AUTO_CLEANING, "operatingState")
         if CAP_DUST_FILTER not in disabled:
-            state["filter_status"] = _val(CAP_DUST_FILTER, "dustFilterStatus")
-            state["filter_usage"]  = _val(CAP_DUST_FILTER, "dustFilterUsage")
+            state["filter_status"]     = _val(CAP_DUST_FILTER, "dustFilterStatus")
+            state["filter_usage"]      = _val(CAP_DUST_FILTER, "dustFilterUsage")
+            state["filter_capacity"]   = _val(CAP_DUST_FILTER, "dustFilterCapacity")
+            state["filter_last_reset"] = _val(CAP_DUST_FILTER, "dustFilterLastResetDate")
+        if CAP_DUST_ALARM not in disabled:
+            state["filter_alarm_threshold"]  = _val(CAP_DUST_ALARM, "alarmThreshold")
+            state["filter_alarm_thresholds"] = _val(CAP_DUST_ALARM, "supportedAlarmThresholds") or []
         if CAP_TROPICAL_NIGHT not in disabled:
             state["tropical_night_level"] = _val(CAP_TROPICAL_NIGHT, "acTropicalNightModeLevel")
+        if CAP_SELF_CHECK not in disabled:
+            state["self_check_status"] = _val(CAP_SELF_CHECK, "status")
+            state["self_check_errors"] = _val(CAP_SELF_CHECK, "errors") or []
 
         return state
 
@@ -204,3 +212,27 @@ class SmartThingsApiClient:
     async def set_auto_cleaning(self, device_id: str, on: bool) -> None:
         await self._command(device_id, [self._cmd(CAP_AUTO_CLEANING, "setAutoCleaningMode",
                                                    ["on" if on else "off"])])
+
+    # ------------------------------------------------------------------
+    # Reset filtre
+    # ------------------------------------------------------------------
+
+    async def reset_filter(self, device_id: str) -> None:
+        await self._command(device_id, [self._cmd(CAP_DUST_FILTER, "resetDustFilter")])
+
+    async def set_filter_alarm_threshold(self, device_id: str, hours: int) -> None:
+        await self._command(device_id, [self._cmd(CAP_DUST_ALARM, "setAlarmThreshold", [hours])])
+
+    # ------------------------------------------------------------------
+    # Nuit tropicale
+    # ------------------------------------------------------------------
+
+    async def set_tropical_night_level(self, device_id: str, level: int) -> None:
+        await self._command(device_id, [self._cmd(CAP_TROPICAL_NIGHT, "setAcTropicalNightModeLevel", [level])])
+
+    # ------------------------------------------------------------------
+    # Auto-diagnostic
+    # ------------------------------------------------------------------
+
+    async def start_self_check(self, device_id: str) -> None:
+        await self._command(device_id, [self._cmd(CAP_SELF_CHECK, "start")])

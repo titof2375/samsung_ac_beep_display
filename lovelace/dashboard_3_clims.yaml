@@ -63,12 +63,41 @@ views:
               - entity: sensor.climatiseur_de_cloe_humidite
                 name: Humidité
                 icon: mdi:water-percent
-              - entity: sensor.climatiseur_de_cloe_filtre_statut
+              - entity: sensor.climatiseur_de_cloe_filtre_etat
                 name: État du filtre
                 icon: mdi:air-filter
               - entity: sensor.climatiseur_de_cloe_filtre_usage
                 name: Usure du filtre
                 icon: mdi:percent
+              - entity: sensor.climatiseur_de_cloe_filtre_capacite
+                name: Capacité filtre
+                icon: mdi:timer-outline
+              - entity: sensor.climatiseur_de_cloe_filtre_dernier_reset
+                name: Dernier reset filtre
+                icon: mdi:calendar-check
+              - entity: select.climatiseur_de_cloe_filtre_seuil_alarme
+                name: Seuil alarme filtre
+                icon: mdi:filter-cog
+              - entity: button.climatiseur_de_cloe_reinitialiser_filtre
+                name: Réinitialiser filtre
+                icon: mdi:filter-remove
+              - type: divider
+              - entity: switch.climatiseur_de_cloe_nuit_tropicale
+                name: Nuit tropicale
+                icon: mdi:weather-night
+              - entity: sensor.climatiseur_de_cloe_nuit_tropicale_niveau
+                name: Niveau nuit tropicale
+                icon: mdi:weather-night
+              - type: divider
+              - entity: sensor.climatiseur_de_cloe_diagnostic_etat
+                name: Diagnostic état
+                icon: mdi:stethoscope
+              - entity: sensor.climatiseur_de_cloe_diagnostic_erreurs
+                name: Erreurs diagnostic
+                icon: mdi:alert-circle-outline
+              - entity: button.climatiseur_de_cloe_lancer_le_diagnostic
+                name: Lancer le diagnostic
+                icon: mdi:stethoscope
 
       # ======================================================
       # Climatiseur Parental
@@ -124,12 +153,41 @@ views:
               - entity: sensor.climatiseur_parental_humidite
                 name: Humidité
                 icon: mdi:water-percent
-              - entity: sensor.climatiseur_parental_filtre_statut
+              - entity: sensor.climatiseur_parental_filtre_etat
                 name: État du filtre
                 icon: mdi:air-filter
               - entity: sensor.climatiseur_parental_filtre_usage
                 name: Usure du filtre
                 icon: mdi:percent
+              - entity: sensor.climatiseur_parental_filtre_capacite
+                name: Capacité filtre
+                icon: mdi:timer-outline
+              - entity: sensor.climatiseur_parental_filtre_dernier_reset
+                name: Dernier reset filtre
+                icon: mdi:calendar-check
+              - entity: select.climatiseur_parental_filtre_seuil_alarme
+                name: Seuil alarme filtre
+                icon: mdi:filter-cog
+              - entity: button.climatiseur_parental_reinitialiser_filtre
+                name: Réinitialiser filtre
+                icon: mdi:filter-remove
+              - type: divider
+              - entity: switch.climatiseur_parental_nuit_tropicale
+                name: Nuit tropicale
+                icon: mdi:weather-night
+              - entity: sensor.climatiseur_parental_nuit_tropicale_niveau
+                name: Niveau nuit tropicale
+                icon: mdi:weather-night
+              - type: divider
+              - entity: sensor.climatiseur_parental_diagnostic_etat
+                name: Diagnostic état
+                icon: mdi:stethoscope
+              - entity: sensor.climatiseur_parental_diagnostic_erreurs
+                name: Erreurs diagnostic
+                icon: mdi:alert-circle-outline
+              - entity: button.climatiseur_parental_lancer_le_diagnostic
+                name: Lancer le diagnostic
+                icon: mdi:stethoscope
 
       # ======================================================
       # Climatiseur de Clément
@@ -185,9 +243,38 @@ views:
               - entity: sensor.climatiseur_de_clement_humidite
                 name: Humidité
                 icon: mdi:water-percent
-              - entity: sensor.climatiseur_de_clement_filtre_statut
+              - entity: sensor.climatiseur_de_clement_filtre_etat
                 name: État du filtre
                 icon: mdi:air-filter
               - entity: sensor.climatiseur_de_clement_filtre_usage
                 name: Usure du filtre
                 icon: mdi:percent
+              - entity: sensor.climatiseur_de_clement_filtre_capacite
+                name: Capacité filtre
+                icon: mdi:timer-outline
+              - entity: sensor.climatiseur_de_clement_filtre_dernier_reset
+                name: Dernier reset filtre
+                icon: mdi:calendar-check
+              - entity: select.climatiseur_de_clement_filtre_seuil_alarme
+                name: Seuil alarme filtre
+                icon: mdi:filter-cog
+              - entity: button.climatiseur_de_clement_reinitialiser_filtre
+                name: Réinitialiser filtre
+                icon: mdi:filter-remove
+              - type: divider
+              - entity: switch.climatiseur_de_clement_nuit_tropicale
+                name: Nuit tropicale
+                icon: mdi:weather-night
+              - entity: sensor.climatiseur_de_clement_nuit_tropicale_niveau
+                name: Niveau nuit tropicale
+                icon: mdi:weather-night
+              - type: divider
+              - entity: sensor.climatiseur_de_clement_diagnostic_etat
+                name: Diagnostic état
+                icon: mdi:stethoscope
+              - entity: sensor.climatiseur_de_clement_diagnostic_erreurs
+                name: Erreurs diagnostic
+                icon: mdi:alert-circle-outline
+              - entity: button.climatiseur_de_clement_lancer_le_diagnostic
+                name: Lancer le diagnostic
+                icon: mdi:stethoscope

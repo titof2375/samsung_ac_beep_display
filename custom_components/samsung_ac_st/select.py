@@ -38,10 +38,11 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     coordinator: SamsungAcCoordinator = hass.data[DOMAIN][entry.entry_id]
-    async_add_entities(
-        SamsungAcOptionalModeSelect(coordinator, device)
-        for device in coordinator.devices
-    )
+    entities = []
+    for device in coordinator.devices:
+        entities.append(SamsungAcOptionalModeSelect(coordinator, device))
+        entities.append(FilterAlarmSelect(coordinator, device))
+    async_add_entities(entities)
 
 
 class SamsungAcOptionalModeSelect(CoordinatorEntity[SamsungAcCoordinator], SelectEntity):
@@ -92,4 +93,49 @@ class SamsungAcOptionalModeSelect(CoordinatorEntity[SamsungAcCoordinator], Selec
         reverse = {v: k for k, v in MODE_LABELS.items()}
         api_mode = reverse.get(option, option)
         await self.coordinator.client.set_optional_mode(self._device_id, api_mode)
+        await self.coordinator.async_request_refresh()
+
+
+class FilterAlarmSelect(CoordinatorEntity[SamsungAcCoordinator], SelectEntity):
+    """Select pour le seuil d'alarme du filtre (heures d'utilisation)."""
+
+    _attr_has_entity_name = True
+    _attr_name = "Filtre seuil alarme"
+    _attr_icon = "mdi:filter-cog"
+
+    def __init__(self, coordinator: SamsungAcCoordinator, device: dict) -> None:
+        super().__init__(coordinator)
+        self._device_id = device["device_id"]
+        self._label = device["label"]
+        self._attr_unique_id = f"{self._device_id}_filter_alarm"
+
+    @property
+    def device_info(self) -> DeviceInfo:
+        return DeviceInfo(
+            identifiers={(DOMAIN, self._device_id)},
+            name=self._label,
+            manufacturer="Samsung",
+            model="Air Conditioner",
+        )
+
+    def _status(self) -> dict:
+        return self.coordinator.data.get(self._device_id, {})
+
+    @property
+    def options(self) -> list[str]:
+        thresholds = self._status().get("filter_alarm_thresholds") or [180, 300, 500, 700]
+        return [f"{h} h" for h in thresholds]
+
+    @property
+    def current_option(self) -> str | None:
+        threshold = self._status().get("filter_alarm_threshold")
+        return f"{threshold} h" if threshold is not None else None
+
+    @property
+    def available(self) -> bool:
+        return self._status().get("filter_alarm_threshold") is not None
+
+    async def async_select_option(self, option: str) -> None:
+        hours = int(option.replace(" h", ""))
+        await self.coordinator.client.set_filter_alarm_threshold(self._device_id, hours)
         await self.coordinator.async_request_refresh()

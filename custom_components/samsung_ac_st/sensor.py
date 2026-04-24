@@ -17,7 +17,7 @@ from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DOMAIN, FILTER_STATUS_ICONS
+from .const import DOMAIN, FILTER_STATUS_ICONS, FILTER_STATUS_LABELS
 from .coordinator import SamsungAcCoordinator
 
 
@@ -26,6 +26,13 @@ class SamsungAcSensorDesc(SensorEntityDescription):
     value_fn: Callable[[dict], object]
     available_fn: Callable[[dict], bool] = lambda s: True
 
+
+SELF_CHECK_LABELS = {
+    "ready":   "Prêt",
+    "running": "En cours",
+    "pass":    "OK",
+    "error":   "Erreur",
+}
 
 SENSORS: tuple[SamsungAcSensorDesc, ...] = (
     SamsungAcSensorDesc(
@@ -49,8 +56,47 @@ SENSORS: tuple[SamsungAcSensorDesc, ...] = (
         key="filter_status",
         name="Filtre état",
         icon="mdi:air-filter",
-        value_fn=lambda s: s.get("filter_status"),
+        value_fn=lambda s: FILTER_STATUS_LABELS.get(s.get("filter_status"), s.get("filter_status")),
         available_fn=lambda s: s.get("filter_status") is not None,
+    ),
+    SamsungAcSensorDesc(
+        key="filter_capacity",
+        name="Filtre capacité",
+        icon="mdi:timer-outline",
+        native_unit_of_measurement="h",
+        value_fn=lambda s: s.get("filter_capacity"),
+        available_fn=lambda s: s.get("filter_capacity") is not None,
+    ),
+    SamsungAcSensorDesc(
+        key="filter_last_reset",
+        name="Filtre dernier reset",
+        icon="mdi:calendar-check",
+        device_class=SensorDeviceClass.DATE,
+        value_fn=lambda s: s.get("filter_last_reset"),
+        available_fn=lambda s: s.get("filter_last_reset") is not None,
+    ),
+    SamsungAcSensorDesc(
+        key="tropical_night_level",
+        name="Nuit tropicale niveau",
+        icon="mdi:weather-night",
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda s: s.get("tropical_night_level"),
+        available_fn=lambda s: s.get("tropical_night_level") is not None,
+    ),
+    SamsungAcSensorDesc(
+        key="self_check_status",
+        name="Diagnostic état",
+        icon="mdi:stethoscope",
+        value_fn=lambda s: SELF_CHECK_LABELS.get(s.get("self_check_status"), s.get("self_check_status")),
+        available_fn=lambda s: s.get("self_check_status") is not None,
+    ),
+    SamsungAcSensorDesc(
+        key="self_check_errors",
+        name="Diagnostic erreurs",
+        icon="mdi:alert-circle-outline",
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda s: len(s.get("self_check_errors") or []),
+        available_fn=lambda s: s.get("self_check_errors") is not None,
     ),
 )
 

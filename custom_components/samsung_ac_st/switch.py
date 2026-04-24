@@ -50,6 +50,14 @@ SWITCHES: tuple[SamsungAcSwitchDesc, ...] = (
         turn_off_fn=lambda c, did: c.set_auto_cleaning(did, False),
         state_fn=lambda s: s.get("auto_cleaning"),
     ),
+    SamsungAcSwitchDesc(
+        key="tropical_night",
+        name="Nuit tropicale",
+        icon="mdi:weather-night",
+        turn_on_fn=lambda c, did: c.set_tropical_night_level(did, 1),
+        turn_off_fn=lambda c, did: c.set_tropical_night_level(did, 0),
+        state_fn=lambda s: bool(s.get("tropical_night_level")),
+    ),
 )
 
 

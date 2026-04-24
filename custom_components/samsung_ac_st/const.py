@@ -20,6 +20,7 @@ CAP_AUTO_CLEANING    = "custom.autoCleaningMode"
 CAP_DUST_FILTER      = "custom.dustFilter"
 CAP_DUST_ALARM       = "samsungce.dustFilterAlarm"
 CAP_TROPICAL_NIGHT   = "custom.airConditionerTropicalNightMode"
+CAP_SELF_CHECK       = "samsungce.selfCheck"
 CAP_EXECUTE          = "execute"
 
 # OCF execute — Samsung naming (display est inversé !)
@@ -64,4 +65,11 @@ FILTER_STATUS_ICONS = {
     "normal":  "mdi:air-filter",
     "wash":    "mdi:alert",
     "replace": "mdi:alert-circle",
+}
+
+# Filter status French labels
+FILTER_STATUS_LABELS = {
+    "normal":  "Normal",
+    "wash":    "À laver",
+    "replace": "À remplacer",
 }
