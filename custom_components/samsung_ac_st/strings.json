@@ -3,8 +3,13 @@
     "step": {
       "user": {
         "title": "Samsung AC SmartThings",
-        "description": "Entrez votre Personal Access Token SmartThings.\nCréez-en un sur https://account.smartthings.com/tokens\n(scopes requis : Devices — list, read, execute)",
+        "description": "Entrez votre Personal Access Token SmartThings.\nCréez-en un sur https://account.smartthings.com/tokens\n⚠️ Choisissez **Never** comme expiration !",
         "data": { "token": "Token SmartThings" }
+      },
+      "reauth_confirm": {
+        "title": "Token SmartThings expiré",
+        "description": "Votre token a expiré. Créez-en un nouveau sur https://account.smartthings.com/tokens en choisissant **Never** comme expiration.",
+        "data": { "token": "Nouveau token SmartThings" }
       }
     },
     "error": {
@@ -12,6 +17,23 @@
       "cannot_connect": "Impossible de joindre SmartThings",
       "unknown": "Erreur inattendue"
     },
-    "abort": { "already_configured": "Déjà configuré" }
+    "abort": {
+      "already_configured": "Déjà configuré",
+      "reauth_successful": "Re-authentification réussie"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Mettre à jour le token",
+        "description": "Remplacez le token SmartThings si nécessaire.\nChoisissez **Never** comme expiration sur account.smartthings.com/tokens",
+        "data": { "token": "Token SmartThings" }
+      }
+    },
+    "error": {
+      "invalid_auth": "Token invalide ou expiré",
+      "cannot_connect": "Impossible de joindre SmartThings",
+      "unknown": "Erreur inattendue"
+    }
   }
 }

@@ -5,9 +5,10 @@ import logging
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .api import SmartThingsApiClient, SmartThingsConnectionError
+from .api import SmartThingsApiClient, SmartThingsAuthError, SmartThingsConnectionError
 from .const import CONF_TOKEN, DOMAIN
 from .coordinator import SamsungAcCoordinator
 
@@ -22,6 +23,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     try:
         devices = await client.get_ac_devices()
+    except SmartThingsAuthError as err:
+        # Token expired or invalid → HA affiche une notification de re-auth
+        raise ConfigEntryAuthFailed(str(err)) from err
     except SmartThingsConnectionError as err:
         _LOGGER.error("Cannot connect to SmartThings: %s", err)
         return False
