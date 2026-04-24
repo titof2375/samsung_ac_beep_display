@@ -1,4 +1,4 @@
-"""Switch entities: display and beep per Samsung AC."""
+"""Switch entities: display, beep, auto-cleaning."""
 from __future__ import annotations
 
 import logging
@@ -22,6 +22,7 @@ _LOGGER = logging.getLogger(__name__)
 class SamsungAcSwitchDesc(SwitchEntityDescription):
     turn_on_fn: Callable[..., Coroutine]
     turn_off_fn: Callable[..., Coroutine]
+    state_fn: Callable[[dict], bool | None] = lambda s: None
 
 
 SWITCHES: tuple[SamsungAcSwitchDesc, ...] = (
@@ -31,6 +32,7 @@ SWITCHES: tuple[SamsungAcSwitchDesc, ...] = (
         icon="mdi:television",
         turn_on_fn=lambda c, did: c.set_display(did, True),
         turn_off_fn=lambda c, did: c.set_display(did, False),
+        # display state not readable via API — optimistic only
     ),
     SamsungAcSwitchDesc(
         key="beep",
@@ -38,6 +40,15 @@ SWITCHES: tuple[SamsungAcSwitchDesc, ...] = (
         icon="mdi:volume-high",
         turn_on_fn=lambda c, did: c.set_beep(did, True),
         turn_off_fn=lambda c, did: c.set_beep(did, False),
+        state_fn=lambda s: (s["volume"] > 0) if s.get("volume") is not None else None,
+    ),
+    SamsungAcSwitchDesc(
+        key="auto_cleaning",
+        name="Nettoyage auto",
+        icon="mdi:shimmer",
+        turn_on_fn=lambda c, did: c.set_auto_cleaning(did, True),
+        turn_off_fn=lambda c, did: c.set_auto_cleaning(did, False),
+        state_fn=lambda s: s.get("auto_cleaning"),
     ),
 )
 
@@ -56,22 +67,15 @@ async def async_setup_entry(
 
 
 class SamsungAcSwitch(CoordinatorEntity[SamsungAcCoordinator], SwitchEntity):
-    """Display or beep switch for one Samsung AC unit."""
-
     entity_description: SamsungAcSwitchDesc
     _attr_has_entity_name = True
 
-    def __init__(
-        self,
-        coordinator: SamsungAcCoordinator,
-        device: dict,
-        description: SamsungAcSwitchDesc,
-    ) -> None:
+    def __init__(self, coordinator: SamsungAcCoordinator, device: dict, desc: SamsungAcSwitchDesc) -> None:
         super().__init__(coordinator)
-        self.entity_description = description
+        self.entity_description = desc
         self._device_id = device["device_id"]
         self._label = device["label"]
-        self._attr_unique_id = f"{self._device_id}_{description.key}"
+        self._attr_unique_id = f"{self._device_id}_{desc.key}"
         self._optimistic: bool | None = None
 
     @property
@@ -83,8 +87,14 @@ class SamsungAcSwitch(CoordinatorEntity[SamsungAcCoordinator], SwitchEntity):
             model="Air Conditioner",
         )
 
+    def _status(self) -> dict:
+        return self.coordinator.data.get(self._device_id, {})
+
     @property
     def is_on(self) -> bool | None:
+        coordinator_state = self.entity_description.state_fn(self._status())
+        if coordinator_state is not None:
+            return coordinator_state
         return self._optimistic
 
     async def async_turn_on(self, **kwargs: Any) -> None:

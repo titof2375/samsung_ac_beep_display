@@ -7,23 +7,25 @@ ST_API_BASE = "https://api.smartthings.com/v1"
 POLL_INTERVAL = 30  # seconds
 
 # SmartThings capabilities
-CAP_SWITCH = "switch"
-CAP_AC_MODE = "airConditionerMode"
-CAP_COOL_SETPOINT = "thermostatCoolingSetpoint"
-CAP_HEAT_SETPOINT = "thermostatHeatingSetpoint"
-CAP_TEMP = "temperatureMeasurement"
-CAP_HUMIDITY = "relativeHumidityMeasurement"
-CAP_FAN_MODE = "airConditionerFanMode"
-CAP_SWING = "fanOscillationMode"
-CAP_EXECUTE = "execute"
+CAP_SWITCH           = "switch"
+CAP_AC_MODE          = "airConditionerMode"
+CAP_OPTIONAL_MODE    = "custom.airConditionerOptionalMode"
+CAP_COOL_SETPOINT    = "thermostatCoolingSetpoint"
+CAP_TEMP             = "temperatureMeasurement"
+CAP_HUMIDITY         = "relativeHumidityMeasurement"
+CAP_FAN_MODE         = "airConditionerFanMode"
+CAP_SWING            = "fanOscillationMode"
+CAP_AUDIO_VOLUME     = "audioVolume"
+CAP_AUTO_CLEANING    = "custom.autoCleaningMode"
+CAP_DUST_FILTER      = "custom.dustFilter"
+CAP_DUST_ALARM       = "samsungce.dustFilterAlarm"
+CAP_TROPICAL_NIGHT   = "custom.airConditionerTropicalNightMode"
+CAP_EXECUTE          = "execute"
 
-# OCF execute path for display/beep
-OCF_PATH = "mode/vs/0"
-# Samsung naming is intentionally inverted for display!
-OPT_DISPLAY_OFF = "Light_On"   # Light_On = display OFF
+# OCF execute for display (Samsung naming is inverted!)
+OCF_PATH        = "mode/vs/0"
+OPT_DISPLAY_OFF = "Light_On"   # Light_On  = display OFF
 OPT_DISPLAY_ON  = "Light_Off"  # Light_Off = display ON
-OPT_BEEP_ON     = "Beep_On"
-OPT_BEEP_OFF    = "Beep_Off"
 
 # AC mode mapping: HA → SmartThings
 HA_TO_ST_MODE = {
@@ -47,9 +49,19 @@ ST_TO_HA_FAN = {v: k for k, v in HA_TO_ST_FAN.items()}
 
 # Swing mode mapping
 HA_TO_ST_SWING = {
-    "off":      "fixed",
-    "vertical": "vertical",
+    "off":        "fixed",
+    "vertical":   "vertical",
     "horizontal": "horizontal",
-    "both":     "all",
+    "both":       "all",
 }
 ST_TO_HA_SWING = {v: k for k, v in HA_TO_ST_SWING.items()}
+
+# Optional mode (Wind-Free etc.)
+OPTIONAL_MODES = ["off", "sleep", "quiet", "speed", "windFree", "windFreeSleep"]
+
+# Filter status
+FILTER_STATUS_ICONS = {
+    "normal": "mdi:air-filter",
+    "wash":   "mdi:alert",
+    "replace": "mdi:alert-circle",
+}
