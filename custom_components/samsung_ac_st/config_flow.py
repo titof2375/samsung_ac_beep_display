@@ -1,4 +1,4 @@
-"""Config flow Samsung AC SmartThings — OAuth2 avec création/récupération de SmartApp."""
+"""Config flow Samsung AC SmartThings — OAuth2 avec credentials fournis par l'utilisateur."""
 from __future__ import annotations
 
 import base64
@@ -25,7 +25,6 @@ from .const import (
     DOMAIN,
     OAUTH_CALLBACK_PATH,
     OAUTH_SCOPES,
-    ST_API_BASE,
     ST_AUTH_URL,
     ST_TOKEN_URL,
 )
@@ -33,7 +32,8 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 STEP_USER_SCHEMA = vol.Schema({
-    vol.Required("pat"): str,
+    vol.Required(CONF_CLIENT_ID): str,
+    vol.Required(CONF_CLIENT_SECRET): str,
 })
 
 
@@ -77,14 +77,13 @@ class SamsungAcConfigFlow(ConfigFlow, domain=DOMAIN):
     VERSION = 1
 
     def __init__(self) -> None:
-        self._pat: str | None = None
         self._client_id: str | None = None
         self._client_secret: str | None = None
         self._redirect_uri: str | None = None
         self._oauth_url: str | None = None
 
     # ------------------------------------------------------------------
-    # Étape 1 : saisie du PAT
+    # Étape 1 : saisie du client_id et client_secret
     # ------------------------------------------------------------------
 
     async def async_step_user(
@@ -93,25 +92,18 @@ class SamsungAcConfigFlow(ConfigFlow, domain=DOMAIN):
         errors: dict[str, str] = {}
 
         if user_input is not None:
-            pat = user_input["pat"].strip()
-            session = async_get_clientsession(self.hass)
+            client_id = user_input[CONF_CLIENT_ID].strip()
+            client_secret = user_input[CONF_CLIENT_SECRET].strip()
 
-            try:
-                async with session.get(
-                    f"{ST_API_BASE}/devices",
-                    headers={"Authorization": f"Bearer {pat}"},
-                    timeout=aiohttp.ClientTimeout(total=10),
-                ) as r:
-                    if r.status == 401:
-                        errors["base"] = "invalid_auth"
-                    elif r.status != 200:
-                        errors["base"] = "cannot_connect"
-            except aiohttp.ClientError:
-                errors["base"] = "cannot_connect"
+            if not client_id:
+                errors[CONF_CLIENT_ID] = "invalid_client_id"
+            elif not client_secret:
+                errors[CONF_CLIENT_SECRET] = "invalid_client_secret"
 
             if not errors:
-                self._pat = pat
-                return await self.async_step_create_app()
+                self._client_id = client_id
+                self._client_secret = client_secret
+                return await self._async_start_oauth()
 
         return self.async_show_form(
             step_id="user",
@@ -120,172 +112,18 @@ class SamsungAcConfigFlow(ConfigFlow, domain=DOMAIN):
         )
 
     # ------------------------------------------------------------------
-    # Étape 2 : trouver ou créer le SmartApp
+    # Démarrage du flow OAuth externe
     # ------------------------------------------------------------------
 
-    async def async_step_create_app(
-        self, user_input: dict[str, Any] | None = None
-    ) -> ConfigFlowResult:
-        import hashlib
-        import json as _json
-
-        session = async_get_clientsession(self.hass)
-
+    async def _async_start_oauth(self) -> ConfigFlowResult:
         try:
             ha_url = get_url(self.hass, allow_internal=True, allow_ip=True)
         except NoURLAvailableError:
             return self.async_abort(reason="no_url_available")
 
         self._redirect_uri = f"{ha_url}{OAUTH_CALLBACK_PATH}"
-        headers = {
-            "Authorization": f"Bearer {self._pat}",
-            "Content-Type": "application/json",
-        }
-
-        # Nom déterministe pour les nouvelles créations
-        ha_hash = hashlib.md5(ha_url.encode()).hexdigest()[:16]
-        app_name = f"samsung-ac-ha-{ha_hash}"
-
-        app_id = None
-        client_id = None
-
-        # ── 1. Chercher par nom déterministe ──────────────────────────
-        try:
-            async with session.get(
-                f"{ST_API_BASE}/apps/{app_name}",
-                headers={"Authorization": f"Bearer {self._pat}"},
-                timeout=aiohttp.ClientTimeout(total=15),
-            ) as r:
-                _LOGGER.debug("GET app '%s' — HTTP %s", app_name, r.status)
-                if r.status == 200:
-                    data = await r.json()
-                    app_id = data.get("appId")
-                    client_id = data.get("oauthClientId")
-                    _LOGGER.debug("App trouvée par nom déterministe: %s", app_id)
-        except aiohttp.ClientError:
-            pass
-
-        # ── 2. Chercher dans la liste de toutes les apps ──────────────
-        if not app_id:
-            try:
-                async with session.get(
-                    f"{ST_API_BASE}/apps",
-                    headers={"Authorization": f"Bearer {self._pat}"},
-                    timeout=aiohttp.ClientTimeout(total=15),
-                ) as r:
-                    _LOGGER.debug("GET /apps — HTTP %s", r.status)
-                    if r.status == 200:
-                        data = await r.json()
-                        items = data.get("items", [])
-                        _LOGGER.debug("Liste apps: %d app(s) trouvée(s)", len(items))
-                        for item in items:
-                            name = item.get("appName", "")
-                            _LOGGER.debug("  app: %s (%s)", name, item.get("appId"))
-                            if name.startswith("samsung-ac-ha-"):
-                                app_id = item.get("appId")
-                                client_id = item.get("oauthClientId")
-                                _LOGGER.debug("App samsung-ac-ha-* trouvée: %s", app_id)
-                                break
-                    elif r.status == 403:
-                        _LOGGER.warning("GET /apps — 403 : scope r:apps:* manquant dans le PAT")
-            except aiohttp.ClientError as err:
-                _LOGGER.warning("GET /apps échoué: %s", err)
-
-        # ── 3. App trouvée → mettre à jour redirect + régénérer secret ─
-        if app_id:
-            _LOGGER.debug("Réutilisation de l'app existante: %s", app_id)
-
-            # Mettre à jour le redirect URI
-            try:
-                async with session.put(
-                    f"{ST_API_BASE}/apps/{app_id}/oauth",
-                    headers=headers,
-                    json={
-                        "clientName": "Samsung AC HA",
-                        "scope": OAUTH_SCOPES.split(),
-                        "redirectUris": [self._redirect_uri],
-                    },
-                    timeout=aiohttp.ClientTimeout(total=15),
-                ) as r:
-                    _LOGGER.debug("PUT /apps/{id}/oauth — HTTP %s", r.status)
-            except aiohttp.ClientError as err:
-                _LOGGER.warning("Mise à jour redirect URI échouée: %s", err)
-
-            # Régénérer le client_secret
-            try:
-                async with session.post(
-                    f"{ST_API_BASE}/apps/{app_id}/oauth/generate",
-                    headers=headers,
-                    timeout=aiohttp.ClientTimeout(total=15),
-                ) as r:
-                    body = await r.text()
-                    _LOGGER.debug("POST /apps/{id}/oauth/generate — HTTP %s: %s", r.status, body[:300])
-                    if r.status == 200:
-                        creds = _json.loads(body)
-                        oauth = creds.get("oauthClientDetails") or creds
-                        self._client_id = oauth.get("clientId") or client_id
-                        self._client_secret = oauth.get("clientSecret")
-            except aiohttp.ClientError as err:
-                _LOGGER.error("Régénération credentials échouée: %s", err)
-
-            if not self._client_id or not self._client_secret:
-                _LOGGER.error("Impossible de récupérer les credentials (appId=%s)", app_id)
-                return self.async_abort(reason="app_creation_failed")
-
-        # ── 4. Pas d'app existante → créer ───────────────────────────
-        else:
-            payload = {
-                "appName": app_name,
-                "displayName": "Samsung AC HA Integration",
-                "description": "Home Assistant integration for Samsung AC climate control",
-                "appType": "API_ONLY",
-                "classifications": ["AUTOMATION"],
-                "apiOnly": {},
-                "oauth": {
-                    "clientName": "Samsung AC HA",
-                    "scope": OAUTH_SCOPES.split(),
-                    "redirectUris": [self._redirect_uri],
-                },
-            }
-            _LOGGER.debug("Création SmartApp: %s", app_name)
-            try:
-                async with session.post(
-                    f"{ST_API_BASE}/apps",
-                    headers=headers,
-                    json=payload,
-                    timeout=aiohttp.ClientTimeout(total=30),
-                ) as r:
-                    body = await r.text()
-                    _LOGGER.debug("POST /apps — HTTP %s: %s", r.status, body[:400])
-                    if r.status == 401:
-                        return self.async_abort(reason="invalid_auth")
-                    if r.status == 403:
-                        return self.async_abort(reason="insufficient_permissions")
-                    if r.status == 422:
-                        # L'app existe quelque part mais on n'a pas pu la lire (scope manquant)
-                        _LOGGER.error(
-                            "422 : app existe mais introuvable — ajoutez le scope r:apps:* à votre PAT"
-                        )
-                        return self.async_abort(reason="app_exists_no_read")
-                    if r.status not in (200, 201):
-                        return self.async_abort(reason="app_creation_failed")
-
-                    data = _json.loads(body)
-                    oauth = data.get("oauthClientDetails") or {}
-                    self._client_id = oauth.get("clientId") or data.get("oauthClientId")
-                    self._client_secret = oauth.get("clientSecret") or data.get("oauthClientSecret")
-
-            except aiohttp.ClientError as err:
-                _LOGGER.error("Connexion impossible: %s", err)
-                return self.async_abort(reason="cannot_connect")
-
-        if not self._client_id or not self._client_secret:
-            return self.async_abort(reason="app_creation_failed")
-
-        # Enregistrer le callback OAuth
         _register_oauth_view(self.hass)
 
-        # Construire l'URL d'autorisation SmartThings
         scope_encoded = quote(OAUTH_SCOPES, safe="")
         redirect_encoded = quote(self._redirect_uri, safe="")
         self._oauth_url = (
@@ -300,7 +138,7 @@ class SamsungAcConfigFlow(ConfigFlow, domain=DOMAIN):
         return self.async_external_step(step_id="oauth", url=self._oauth_url)
 
     # ------------------------------------------------------------------
-    # Étape 3 : réception du code OAuth
+    # Étape 2 : réception du code OAuth (via la vue de callback)
     # ------------------------------------------------------------------
 
     async def async_step_oauth(

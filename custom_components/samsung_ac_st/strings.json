@@ -2,15 +2,16 @@
   "config": {
     "step": {
       "user": {
-        "title": "Samsung AC SmartThings — Token temporaire",
-        "description": "**Token personnel SmartThings (une seule fois)**\n\nCe token sert uniquement à créer/retrouver votre application. Ensuite tout est automatique.\n\n1. Allez sur [account.smartthings.com/tokens](https://account.smartthings.com/tokens)\n2. Cliquez **Générer un nouveau jeton**\n3. Cochez **tous** ces scopes :\n   - `r:devices:*`\n   - `x:devices:*`\n   - `r:apps:*`\n   - `w:apps:*`\n4. Collez le token ci-dessous",
+        "title": "Samsung AC SmartThings — Identifiants OAuth2",
+        "description": "Entrez les identifiants de votre application SmartThings.\n\nSi vous n'avez pas encore de credentials, contactez votre administrateur ou consultez la documentation de l'intégration.",
         "data": {
-          "pat": "Token personnel SmartThings"
+          "client_id": "Client ID",
+          "client_secret": "Client Secret"
         }
       },
       "oauth": {
         "title": "Samsung AC SmartThings — Connexion Samsung",
-        "description": "**Connexion à votre compte Samsung**\n\nCliquez sur le bouton ci-dessous pour autoriser l'intégration.\n\nVous serez automatiquement redirigé vers Home Assistant."
+        "description": "Cliquez sur le bouton ci-dessous pour vous connecter à votre compte Samsung et autoriser l'intégration.\n\nVous serez automatiquement redirigé vers Home Assistant une fois l'autorisation accordée."
       },
       "reauth_confirm": {
         "title": "Reconnexion Samsung AC SmartThings",
@@ -18,21 +19,16 @@
       }
     },
     "error": {
-      "invalid_auth": "Token invalide ou révoqué",
-      "cannot_connect": "Impossible de joindre l'API SmartThings",
+      "invalid_client_id": "Client ID invalide",
+      "invalid_client_secret": "Client Secret invalide",
       "unknown": "Erreur inattendue"
     },
     "abort": {
       "already_configured": "Déjà configuré",
       "reauth_successful": "Reconnexion réussie",
       "no_url_available": "Impossible de déterminer l'URL de Home Assistant. Configurez l'URL interne dans Paramètres → Système → Réseau.",
-      "invalid_auth": "Token invalide ou révoqué",
-      "cannot_connect": "Impossible de joindre SmartThings",
-      "insufficient_permissions": "Droits insuffisants — ajoutez les scopes r:apps:* et w:apps:* à votre token",
-      "app_creation_failed": "Échec de la création de l'application SmartThings",
-      "oauth_error": "Erreur lors de l'autorisation Samsung — réessayez",
-      "token_exchange_failed": "Échec de l'échange du code OAuth — réessayez",
-      "app_exists_no_read": "Une application SmartThings existe déjà mais ne peut pas être lue. Ajoutez le scope r:apps:* à votre token et réessayez."
+      "oauth_error": "Erreur lors de l'autorisation Samsung — vérifiez vos identifiants et réessayez",
+      "token_exchange_failed": "Échec de l'échange du code OAuth — vérifiez que l'URL de callback est correctement configurée"
     }
   }
 }
