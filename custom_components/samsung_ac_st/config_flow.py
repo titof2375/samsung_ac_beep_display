@@ -139,8 +139,11 @@ class SamsungAcConfigFlow(ConfigFlow, domain=DOMAIN):
 
         self._redirect_uri = f"{ha_url}{OAUTH_CALLBACK_PATH}"
 
+        # Supprimer les anciens SmartApps samsung-ac-ha-* de tentatives précédentes
+        await self._cleanup_old_apps(session)
+
         # Créer le SmartApp via l'API SmartThings
-        app_name = f"samsung-ac-ha-{uuid.uuid4().hex[:8]}"
+        app_name = f"samsung-ac-ha-{uuid.uuid4().hex}"
         payload = {
             "appName": app_name,
             "displayName": "Samsung AC HA Integration",
@@ -155,8 +158,7 @@ class SamsungAcConfigFlow(ConfigFlow, domain=DOMAIN):
             },
         }
 
-        _LOGGER.debug("Création SmartApp — payload: %s", payload)
-        _LOGGER.debug("Création SmartApp — redirect_uri: %s", self._redirect_uri)
+        _LOGGER.debug("Création SmartApp — appName: %s, redirect_uri: %s", app_name, self._redirect_uri)
 
         try:
             async with session.post(
@@ -169,14 +171,13 @@ class SamsungAcConfigFlow(ConfigFlow, domain=DOMAIN):
                 timeout=aiohttp.ClientTimeout(total=30),
             ) as r:
                 body = await r.text()
-                _LOGGER.error(
-                    "Création SmartApp — HTTP %s — réponse: %s", r.status, body[:500]
-                )
+                _LOGGER.debug("Création SmartApp — HTTP %s — réponse: %s", r.status, body[:500])
                 if r.status == 401:
                     return self.async_abort(reason="invalid_auth")
                 if r.status == 403:
                     return self.async_abort(reason="insufficient_permissions")
                 if r.status not in (200, 201):
+                    _LOGGER.error("Création SmartApp échouée %s: %s", r.status, body[:500])
                     return self.async_abort(reason="app_creation_failed")
                 import json as _json
                 data = _json.loads(body)
@@ -273,6 +274,34 @@ class SamsungAcConfigFlow(ConfigFlow, domain=DOMAIN):
     # ------------------------------------------------------------------
     # Échange du code OAuth contre des tokens
     # ------------------------------------------------------------------
+
+    async def _cleanup_old_apps(self, session: aiohttp.ClientSession) -> None:
+        """Supprime les anciens SmartApps samsung-ac-ha-* laissés par des tentatives précédentes."""
+        try:
+            async with session.get(
+                f"{ST_API_BASE}/apps",
+                headers={"Authorization": f"Bearer {self._pat}"},
+                timeout=aiohttp.ClientTimeout(total=15),
+            ) as r:
+                if r.status != 200:
+                    return
+                data = await r.json()
+        except aiohttp.ClientError:
+            return
+
+        for app in data.get("items", []):
+            if app.get("appName", "").startswith("samsung-ac-ha-"):
+                app_id = app.get("appId")
+                _LOGGER.debug("Suppression ancien SmartApp: %s (%s)", app.get("appName"), app_id)
+                try:
+                    async with session.delete(
+                        f"{ST_API_BASE}/apps/{app_id}",
+                        headers={"Authorization": f"Bearer {self._pat}"},
+                        timeout=aiohttp.ClientTimeout(total=15),
+                    ) as del_r:
+                        _LOGGER.debug("Suppression SmartApp %s → HTTP %s", app_id, del_r.status)
+                except aiohttp.ClientError:
+                    pass
 
     async def _exchange_code(self, code: str) -> dict | None:
         session = async_get_clientsession(self.hass)
