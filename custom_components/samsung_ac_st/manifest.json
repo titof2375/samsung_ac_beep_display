@@ -1,7 +1,7 @@
 {
   "domain": "samsung_ac_st",
   "name": "Samsung AC SmartThings",
-  "version": "5.6.0",
+  "version": "5.6.1",
   "config_flow": true,
   "documentation": "https://github.com/titof2375/samsung_ac_beep_display",
   "issue_tracker": "https://github.com/titof2375/samsung_ac_beep_display/issues",
