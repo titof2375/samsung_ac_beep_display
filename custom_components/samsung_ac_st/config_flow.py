@@ -82,6 +82,7 @@ class SamsungAcConfigFlow(ConfigFlow, domain=DOMAIN):
         self._client_secret: str | None = None
         self._redirect_uri: str | None = None
         self._oauth_url: str | None = None
+        self._oauth_code: str | None = None
 
     # ------------------------------------------------------------------
     # Étape 1 : saisie du client_id et client_secret
@@ -164,9 +165,24 @@ class SamsungAcConfigFlow(ConfigFlow, domain=DOMAIN):
 
         code = user_input.get("code")
         if not code:
+            # Dans un external step, on doit passer par external_step_done
+            self._oauth_code = None
+            return self.async_external_step_done(next_step_id="finish")
+
+        self._oauth_code = code
+        return self.async_external_step_done(next_step_id="finish")
+
+    # ------------------------------------------------------------------
+    # Étape 3 : échange du code et création de l'entrée
+    # ------------------------------------------------------------------
+
+    async def async_step_finish(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        if not self._oauth_code:
             return self.async_abort(reason="oauth_error")
 
-        tokens = await self._exchange_code(code)
+        tokens = await self._exchange_code(self._oauth_code)
         if tokens is None:
             return self.async_abort(reason="token_exchange_failed")
 
