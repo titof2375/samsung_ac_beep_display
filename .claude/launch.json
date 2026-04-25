@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "ha-preview",
+      "runtimeExecutable": "powershell",
+      "runtimeArgs": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", "Start-Process powershell -ArgumentList '-NoProfile -Command $l=[Net.HttpListener]::new();$l.Prefixes.Add(''http://+:7789/'');$l.Start();while($true){$c=$l.GetContext();$p=$c.Request.Url.LocalPath;if($p -eq ''/''){$p=''/custom_card.html''};$f=''C:\Users\User\Desktop\ha\samsung_ac_beep_display\preview''+$p.Replace(''/'',''\'');$b=[IO.File]::ReadAllBytes($f);$c.Response.ContentLength64=$b.Length;$c.Response.OutputStream.Write($b,0,$b.Length);$c.Response.Close()}' -NoNewWindow"],
+      "port": 7789
+    }
+  ]
+}

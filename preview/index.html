@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Aperçu carte HA</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #111827; font-family: 'Roboto', sans-serif; padding: 30px 20px; display: flex; flex-direction: column; align-items: center; gap: 30px; }
+  h1 { color: #9ca3af; font-size: 1em; font-weight: 400; letter-spacing: 1px; text-transform: uppercase; }
+  .row { display: flex; gap: 30px; align-items: flex-start; flex-wrap: wrap; justify-content: center; }
+  .col { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .col-label { color: #6b7280; font-size: 0.78em; text-transform: uppercase; letter-spacing: 1px; }
+
+  /* Carte HA thermostat */
+  .ha-card {
+    width: 230px;
+    background: #1f2937;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    color: #e5e7eb;
+  }
+  .card-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 16px 0;
+  }
+  .card-title { font-size: 0.95em; font-weight: 500; color: #f3f4f6; }
+  .card-menu { color: #6b7280; font-size: 1.2em; cursor: pointer; }
+
+  /* Cercle thermostat */
+  .thermo-ring {
+    display: flex; justify-content: center; align-items: center;
+    padding: 10px 16px 6px;
+    position: relative;
+  }
+  .ring-svg { width: 140px; height: 140px; }
+  .ring-center {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center; padding-top: 10px;
+  }
+  .ring-state { font-size: 0.78em; color: #ef4444; margin-bottom: 2px; }
+  .ring-temp { font-size: 2.6em; font-weight: 200; color: #f9fafb; line-height: 1; }
+  .ring-unit { font-size: 0.65em; vertical-align: super; }
+  .ring-target { font-size: 0.75em; color: #9ca3af; margin-top: 4px; }
+
+  /* Icônes fan */
+  .icons-section { padding: 8px 12px; }
+  .icons-label { font-size: 0.65em; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .icons-row { display: flex; gap: 4px; justify-content: center; }
+  .icon-btn {
+    width: 38px; height: 38px; border-radius: 8px;
+    background: #374151; border: none; cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    color: #9ca3af; font-size: 0.6em; gap: 2px;
+  }
+  .icon-btn svg { width: 18px; height: 18px; fill: currentColor; }
+  .icon-btn.active { background: #1e3a5f; color: #60a5fa; }
+  .icon-btn span { font-size: 0.95em; }
+
+  /* HVAC modes */
+  .hvac-row { display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; }
+  .hvac-btn {
+    width: 34px; height: 34px; border-radius: 8px;
+    background: #374151; border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1em; color: #9ca3af;
+  }
+  .hvac-btn.active-off  { background: #374151; color: #d1d5db; }
+
+  /* Dropdown */
+  .drop-section { padding: 6px 12px; }
+  .dropdown {
+    width: 100%; padding: 8px 10px; border-radius: 8px;
+    background: #374151; border: none; color: #d1d5db;
+    font-size: 0.85em; cursor: pointer;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .dropdown span { display: flex; align-items: center; gap: 6px; }
+  .dropdown .arrow { color: #6b7280; }
+
+  .divider { height: 1px; background: #374151; margin: 4px 12px; }
+</style>
+</head>
+<body>
+
+<h1>Aperçu — Carte thermostat HA</h1>
+
+<div class="row">
+
+  <!-- AVANT -->
+  <div class="col">
+    <div class="col-label">🇬🇧 Maintenant</div>
+    <div class="ha-card">
+      <div class="card-header">
+        <span class="card-title">Clim Cloé</span>
+        <span class="card-menu">⋮</span>
+      </div>
+
+      <div class="thermo-ring">
+        <svg class="ring-svg" viewBox="0 0 140 140">
+          <circle cx="70" cy="70" r="58" fill="none" stroke="#374151" stroke-width="6" stroke-dasharray="300 365" stroke-dashoffset="-32" stroke-linecap="round"/>
+          <circle cx="70" cy="70" r="58" fill="none" stroke="#4b5563" stroke-width="3" stroke-dasharray="2 8" stroke-dashoffset="-32"/>
+        </svg>
+        <div class="ring-center">
+          <div class="ring-state">off</div>
+          <div class="ring-temp">21<span class="ring-unit">°</span></div>
+          <div class="ring-target">⊙ 22 °C</div>
+        </div>
+      </div>
+
+      <div class="icons-section">
+        <div class="icons-label">Fan mode</div>
+        <div class="icons-row">
+          <div class="icon-btn active">
+            <svg viewBox="0 0 24 24"><path d="M12 2C10.9 2 10 2.9 10 4V11.1L4.8 8.1C4.3 7.8 3.7 7.8 3.3 8.1C2.5 8.6 2.4 9.7 3 10.4L7.9 15L3 19.6C2.4 20.3 2.5 21.4 3.3 21.9C3.7 22.2 4.3 22.2 4.8 21.9L10 18.9V20C10 21.1 10.9 22 12 22C13.1 22 14 21.1 14 20V18.9L19.2 21.9C19.7 22.2 20.3 22.2 20.7 21.9C21.5 21.4 21.6 20.3 21 19.6L16.1 15L21 10.4C21.6 9.7 21.5 8.6 20.7 8.1C20.3 7.8 19.7 7.8 19.2 8.1L14 11.1V4C14 2.9 13.1 2 12 2Z"/></svg>
+            auto
+          </div>
+          <div class="icon-btn">🌬️<br><span>low</span></div>
+          <div class="icon-btn">💨<br><span>med</span></div>
+          <div class="icon-btn">🌪️<br><span>high</span></div>
+        </div>
+      </div>
+
+      <div class="icons-section">
+        <div class="icons-label">HVAC mode</div>
+        <div class="hvac-row">
+          <div class="hvac-btn">❄️</div>
+          <div class="hvac-btn">🔥</div>
+          <div class="hvac-btn active-off">⏻</div>
+          <div class="hvac-btn">💧</div>
+          <div class="hvac-btn">💨</div>
+          <div class="hvac-btn">🔄</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+      <div class="drop-section">
+        <div class="dropdown"><span>• &nbsp; Aucun</span><span class="arrow">▾</span></div>
+      </div>
+      <div class="drop-section" style="padding-bottom:14px;">
+        <div class="dropdown"><span>⚡ &nbsp; Désactivé</span><span class="arrow">▾</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FLÈCHE -->
+  <div style="color:#374151; font-size:2.5em; padding-top:100px;">→</div>
+
+  <!-- APRÈS -->
+  <div class="col">
+    <div class="col-label">🇫🇷 Après</div>
+    <div class="ha-card">
+      <div class="card-header">
+        <span class="card-title">Clim Cloé</span>
+        <span class="card-menu">⋮</span>
+      </div>
+
+      <div class="thermo-ring">
+        <svg class="ring-svg" viewBox="0 0 140 140">
+          <circle cx="70" cy="70" r="58" fill="none" stroke="#374151" stroke-width="6" stroke-dasharray="300 365" stroke-dashoffset="-32" stroke-linecap="round"/>
+          <circle cx="70" cy="70" r="58" fill="none" stroke="#4b5563" stroke-width="3" stroke-dasharray="2 8" stroke-dashoffset="-32"/>
+        </svg>
+        <div class="ring-center">
+          <div class="ring-state">Éteint</div>
+          <div class="ring-temp">21<span class="ring-unit">°</span></div>
+          <div class="ring-target">⊙ 22 °C</div>
+        </div>
+      </div>
+
+      <div class="icons-section">
+        <div class="icons-label">Ventilateur</div>
+        <div class="icons-row">
+          <div class="icon-btn active">
+            <svg viewBox="0 0 24 24"><path d="M12 2C10.9 2 10 2.9 10 4V11.1L4.8 8.1C4.3 7.8 3.7 7.8 3.3 8.1C2.5 8.6 2.4 9.7 3 10.4L7.9 15L3 19.6C2.4 20.3 2.5 21.4 3.3 21.9C3.7 22.2 4.3 22.2 4.8 21.9L10 18.9V20C10 21.1 10.9 22 12 22C13.1 22 14 21.1 14 20V18.9L19.2 21.9C19.7 22.2 20.3 22.2 20.7 21.9C21.5 21.4 21.6 20.3 21 19.6L16.1 15L21 10.4C21.6 9.7 21.5 8.6 20.7 8.1C20.3 7.8 19.7 7.8 19.2 8.1L14 11.1V4C14 2.9 13.1 2 12 2Z"/></svg>
+            Auto
+          </div>
+          <div class="icon-btn">🌬️<br><span>Bas</span></div>
+          <div class="icon-btn">💨<br><span>Moyen</span></div>
+          <div class="icon-btn">🌪️<br><span>Élevé</span></div>
+        </div>
+      </div>
+
+      <div class="icons-section">
+        <div class="icons-label">Mode</div>
+        <div class="hvac-row">
+          <div class="hvac-btn">❄️</div>
+          <div class="hvac-btn">🔥</div>
+          <div class="hvac-btn active-off">⏻</div>
+          <div class="hvac-btn">💧</div>
+          <div class="hvac-btn">💨</div>
+          <div class="hvac-btn">🔄</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+      <div class="drop-section">
+        <div class="dropdown"><span>• &nbsp; Fixe</span><span class="arrow">▾</span></div>
+      </div>
+      <div class="drop-section" style="padding-bottom:14px;">
+        <div class="dropdown"><span>⚡ &nbsp; Désactivé</span><span class="arrow">▾</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<p style="color:#6b7280; font-size:0.8em; text-align:center; max-width:400px;">
+  Seul changement visible : "Aucun" → "Fixe" pour le mode oscillation.<br>
+  "Éteint" est déjà affiché en français par HA. Les icônes restent identiques.
+</p>
+
+</body>
+</html>

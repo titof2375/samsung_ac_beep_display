@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Aperçu — Carte Samsung AC</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #111827; font-family: 'Roboto', sans-serif; padding: 30px 20px; display: flex; flex-direction: column; align-items: center; gap: 20px; }
+  h1 { color: #9ca3af; font-size: 0.85em; font-weight: 400; letter-spacing: 1px; text-transform: uppercase; }
+
+  .ha-card {
+    width: 260px;
+    background: #1f2937;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    color: #e5e7eb;
+  }
+
+  /* Header */
+  .card-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px 16px 0;
+  }
+  .card-title { font-size: 1em; font-weight: 500; color: #f3f4f6; }
+  .card-menu { color: #6b7280; font-size: 1.3em; cursor: pointer; }
+
+  /* Cercle thermostat */
+  .thermo-ring {
+    display: flex; justify-content: center; align-items: center;
+    padding: 12px 16px 4px;
+    position: relative;
+  }
+  .ring-svg { width: 160px; height: 160px; }
+  .ring-center {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center; padding-top: 8px;
+  }
+  .ring-state { font-size: 0.78em; color: #60a5fa; margin-bottom: 2px; }
+  .ring-state.off { color: #9ca3af; }
+  .ring-state.heat { color: #f87171; }
+  .ring-temp { font-size: 3em; font-weight: 200; color: #f9fafb; line-height: 1; }
+  .ring-unit { font-size: 0.5em; vertical-align: super; }
+  .ring-target { font-size: 0.75em; color: #9ca3af; margin-top: 4px; }
+
+  /* Feature rows */
+  .features { padding: 0 8px 12px; display: flex; flex-direction: column; gap: 4px; }
+
+  .feat-row {
+    display: flex; gap: 3px; justify-content: center;
+    background: #111827; border-radius: 10px; padding: 6px 4px;
+  }
+
+  .feat-btn {
+    flex: 1; height: 38px; border-radius: 8px; border: none;
+    background: transparent; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: #6b7280;
+  }
+  .feat-btn:hover { background: #374151; }
+  .feat-btn.active { background: #374151; color: #e5e7eb; }
+  .feat-btn svg { width: 22px; height: 22px; fill: currentColor; }
+
+  /* HVAC active colors */
+  .feat-btn.hvac-cool.active { color: #60a5fa; }
+  .feat-btn.hvac-heat.active { color: #f87171; }
+  .feat-btn.hvac-auto.active { color: #34d399; }
+  .feat-btn.hvac-dry.active  { color: #fbbf24; }
+  .feat-btn.hvac-fan.active  { color: #a78bfa; }
+  .feat-btn.hvac-off.active  { color: #d1d5db; }
+
+  /* Dropdown row */
+  .drop-row {
+    background: #111827; border-radius: 10px; padding: 0;
+    overflow: hidden;
+  }
+  .drop-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px; cursor: pointer; color: #9ca3af; font-size: 0.85em;
+    border-bottom: 1px solid #1f2937;
+  }
+  .drop-item:last-child { border-bottom: none; }
+  .drop-item:hover { background: #374151; }
+  .drop-item span { display: flex; align-items: center; gap: 8px; }
+  .drop-arrow { color: #4b5563; font-size: 0.8em; }
+
+  /* Temp control row */
+  .temp-row {
+    display: flex; align-items: center; justify-content: center;
+    gap: 16px; padding: 4px 0 8px;
+  }
+  .temp-btn {
+    width: 32px; height: 32px; border-radius: 50%; border: none;
+    background: #374151; color: #9ca3af; font-size: 1.2em;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+  }
+  .temp-btn:hover { background: #4b5563; color: #e5e7eb; }
+  .temp-val { font-size: 1.1em; color: #f3f4f6; min-width: 60px; text-align: center; }
+</style>
+</head>
+<body>
+
+<h1>Aperçu — Carte Samsung AC (HACS)</h1>
+
+<div class="ha-card">
+  <div class="card-header">
+    <span class="card-title">Clim Cloé</span>
+    <span class="card-menu">⋮</span>
+  </div>
+
+  <!-- Cercle -->
+  <div class="thermo-ring">
+    <svg class="ring-svg" viewBox="0 0 160 160">
+      <!-- Track -->
+      <circle cx="80" cy="80" r="66" fill="none" stroke="#374151" stroke-width="6"
+        stroke-dasharray="330 415" stroke-dashoffset="-42" stroke-linecap="round"/>
+      <!-- Progress (cool) -->
+      <circle cx="80" cy="80" r="66" fill="none" stroke="#1e40af" stroke-width="6"
+        stroke-dasharray="140 415" stroke-dashoffset="-42" stroke-linecap="round"
+        id="ring-progress"/>
+      <!-- Dots -->
+      <circle cx="80" cy="80" r="66" fill="none" stroke="#374151" stroke-width="3"
+        stroke-dasharray="2 9" stroke-dashoffset="-42"/>
+    </svg>
+    <div class="ring-center">
+      <div class="ring-state" id="ring-state">Refroidissement</div>
+      <div class="ring-temp" id="ring-temp">21<span class="ring-unit">°</span></div>
+      <div class="ring-target" id="ring-target">⊙ 22 °C</div>
+    </div>
+  </div>
+
+  <!-- Contrôle temp -->
+  <div class="temp-row">
+    <button class="temp-btn" onclick="changeTemp(-1)">−</button>
+    <span class="temp-val" id="temp-display">22 °C</span>
+    <button class="temp-btn" onclick="changeTemp(1)">+</button>
+  </div>
+
+  <div class="features">
+
+    <!-- Fan modes -->
+    <div class="feat-row">
+      <!-- Auto -->
+      <button class="feat-btn active" title="Auto" onclick="setFan(this)">
+        <svg viewBox="0 0 24 24"><path d="M12 2C10.9 2 10 2.9 10 4V11.1L4.8 8.1C4.3 7.8 3.7 7.8 3.3 8.1C2.5 8.6 2.4 9.7 3 10.4L7.9 15L3 19.6C2.4 20.3 2.5 21.4 3.3 21.9C3.7 22.2 4.3 22.2 4.8 21.9L10 18.9V20C10 21.1 10.9 22 12 22C13.1 22 14 21.1 14 20V18.9L19.2 21.9C19.7 22.2 20.3 22.2 20.7 21.9C21.5 21.4 21.6 20.3 21 19.6L16.1 15L21 10.4C21.6 9.7 21.5 8.6 20.7 8.1C20.3 7.8 19.7 7.8 19.2 8.1L14 11.1V4C14 2.9 13.1 2 12 2Z"/></svg>
+      </button>
+      <!-- Low -->
+      <button class="feat-btn" title="Bas" onclick="setFan(this)">
+        <svg viewBox="0 0 24 24"><path d="M4 10h3v4H4v-4m6-4h4v12h-4V6m6 2h4v8h-4V8z"/></svg>
+      </button>
+      <!-- Medium -->
+      <button class="feat-btn" title="Moyen" onclick="setFan(this)">
+        <svg viewBox="0 0 24 24"><path d="M4 10h3v4H4v-4m4-3h4v10H8V7m6-3h4v14h-4V4z"/></svg>
+      </button>
+      <!-- High -->
+      <button class="feat-btn" title="Élevé" onclick="setFan(this)">
+        <svg viewBox="0 0 24 24"><path d="M3 10h3v4H3v-4m4-3h4v10H7V7m6-4h4v14h-4V3z"/></svg>
+      </button>
+    </div>
+
+    <!-- HVAC modes -->
+    <div class="feat-row">
+      <button class="feat-btn hvac-cool active" title="Froid" onclick="setHvac(this,'cool','Refroidissement','#1e40af')">
+        <svg viewBox="0 0 24 24"><path d="M20 13h-3.19l2.64-2.64-1.41-1.41L14 13h-2v-2l4.05-4.05-1.41-1.41L12 8.19V5a1 1 0 0 0-2 0v3.19L7.36 5.54 5.95 6.95 10 11v2H8L3.95 8.95 2.54 10.36 5.19 13H2a1 1 0 0 0 0 2h3.19l-2.65 2.64 1.41 1.41L8 15h2v2l-4.05 4.05 1.41 1.41L10 19.81V23a1 1 0 0 0 2 0v-3.19l2.64 2.64 1.41-1.41L12 17v-2h2l4.05 4.05 1.41-1.41L16.81 15H20a1 1 0 0 0 0-2z"/></svg>
+      </button>
+      <button class="feat-btn hvac-heat" title="Chaud" onclick="setHvac(this,'heat','Chauffage','#7f1d1d')">
+        <svg viewBox="0 0 24 24"><path d="M17.66 11.2C17.43 10.9 17.15 10.64 16.89 10.38C16.22 9.78 15.46 9.35 14.82 8.72C13.33 7.26 13 4.85 13.95 3C13 3.23 12.17 3.75 11.46 4.32C8.87 6.4 7.85 10.07 9.07 13.22C9.11 13.32 9.15 13.42 9.15 13.55C9.15 13.77 9 13.97 8.8 14.05C8.57 14.15 8.33 14.09 8.14 13.93C8.08 13.88 8.04 13.83 8 13.76C6.87 12.33 6.69 10.28 7.45 8.64C5.78 10 4.87 12.3 5 14.47C5.06 14.97 5.12 15.47 5.29 15.97C5.43 16.57 5.7 17.17 6 17.7C7.08 19.43 8.95 20.67 10.96 20.92C13.1 21.19 15.39 20.8 17.03 19.32C18.86 17.66 19.5 15 18.56 12.72L18.43 12.46C18.22 12 17.66 11.2 17.66 11.2Z"/></svg>
+      </button>
+      <button class="feat-btn hvac-off" title="Off" onclick="setHvac(this,'off','Éteint','#374151')">
+        <svg viewBox="0 0 24 24"><path d="M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z"/></svg>
+      </button>
+      <button class="feat-btn hvac-dry" title="Séchage" onclick="setHvac(this,'dry','Séchage','#78350f')">
+        <svg viewBox="0 0 24 24"><path d="M12 2C9.38 2 7.25 4.13 7.25 6.75 7.25 9 9.06 11.61 12 15c2.94-3.39 4.75-6 4.75-8.25C16.75 4.13 14.62 2 12 2zm0 2c1.52 0 2.75 1.23 2.75 2.75S13.52 9.5 12 9.5 9.25 8.27 9.25 6.75 10.48 4 12 4zm-4.5 9.5c-2.49 0-4.5 1.01-4.5 2.25v.75c0 2.76 4.03 5 9 5s9-2.24 9-5v-.75c0-1.24-2.01-2.25-4.5-2.25-.88 0-1.7.15-2.41.42C13.21 13.67 12.62 13.5 12 13.5s-1.21.17-1.59.42c-.71-.27-1.53-.42-2.41-.42z"/></svg>
+      </button>
+      <button class="feat-btn hvac-auto" title="Auto" onclick="setHvac(this,'auto','Auto','#1a3a2a')">
+        <svg viewBox="0 0 24 24"><path d="M12 5C8.13 5 5 8.13 5 12s3.13 7 7 7 7-3.13 7-7-3.13-7-7-7zm0 2c1.29 0 2.48.43 3.44 1.13L6.13 15.44C5.43 14.48 5 13.29 5 12c0-2.76 2.24-5 5-5zm0 10c-1.29 0-2.48-.43-3.44-1.13l9.31-9.31C18.57 9.52 19 10.71 19 12c0 2.76-2.24 5-5 5z"/></svg>
+      </button>
+      <button class="feat-btn hvac-fan" title="Ventilation" onclick="setHvac(this,'fan','Ventilation','#2a1a3a')">
+        <svg viewBox="0 0 24 24"><path d="M12 2C10.9 2 10 2.9 10 4V11.1L4.8 8.1C4.3 7.8 3.7 7.8 3.3 8.1C2.5 8.6 2.4 9.7 3 10.4L7.9 15L3 19.6C2.4 20.3 2.5 21.4 3.3 21.9C3.7 22.2 4.3 22.2 4.8 21.9L10 18.9V20C10 21.1 10.9 22 12 22C13.1 22 14 21.1 14 20V18.9L19.2 21.9C19.7 22.2 20.3 22.2 20.7 21.9C21.5 21.4 21.6 20.3 21 19.6L16.1 15L21 10.4C21.6 9.7 21.5 8.6 20.7 8.1C20.3 7.8 19.7 7.8 19.2 8.1L14 11.1V4C14 2.9 13.1 2 12 2Z"/></svg>
+      </button>
+    </div>
+
+    <!-- Oscillation -->
+    <div class="drop-row">
+      <div class="drop-item">
+        <span>
+          <svg style="width:18px;height:18px;fill:#6b7280" viewBox="0 0 24 24"><path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"/></svg>
+          Oscillation
+        </span>
+        <span class="drop-arrow">Fixe ▾</span>
+      </div>
+    </div>
+
+    <!-- Mode spécial -->
+    <div class="drop-row">
+      <div class="drop-item">
+        <span>
+          <svg style="width:18px;height:18px;fill:#6b7280" viewBox="0 0 24 24"><path d="M12 2C10.9 2 10 2.9 10 4V11.1L4.8 8.1C4.3 7.8 3.7 7.8 3.3 8.1C2.5 8.6 2.4 9.7 3 10.4L7.9 15L3 19.6C2.4 20.3 2.5 21.4 3.3 21.9C3.7 22.2 4.3 22.2 4.8 21.9L10 18.9V20C10 21.1 10.9 22 12 22C13.1 22 14 21.1 14 20V18.9L19.2 21.9C19.7 22.2 20.3 22.2 20.7 21.9C21.5 21.4 21.6 20.3 21 19.6L16.1 15L21 10.4C21.6 9.7 21.5 8.6 20.7 8.1C20.3 7.8 19.7 7.8 19.2 8.1L14 11.1V4C14 2.9 13.1 2 12 2Z"/></svg>
+          Mode spécial
+        </span>
+        <span class="drop-arrow">Désactivé ▾</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+let targetTemp = 22;
+
+function changeTemp(delta) {
+  targetTemp = Math.max(16, Math.min(30, targetTemp + delta));
+  document.getElementById('temp-display').textContent = targetTemp + ' °C';
+  document.getElementById('ring-target').textContent = '⊙ ' + targetTemp + ' °C';
+}
+
+function setFan(btn) {
+  document.querySelectorAll('.feat-row:first-child .feat-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function setHvac(btn, mode, label, color) {
+  document.querySelectorAll('.feat-btn[class*="hvac-"]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const state = document.getElementById('ring-state');
+  state.textContent = label;
+  state.className = 'ring-state ' + mode;
+  document.getElementById('ring-progress').setAttribute('stroke', mode === 'off' ? '#374151' : color);
+}
+</script>
+
+</body>
+</html>

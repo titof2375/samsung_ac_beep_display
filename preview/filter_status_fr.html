@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Aperçu — Filtre état traduction</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #111827; font-family: 'Roboto', sans-serif; padding: 30px 20px; display: flex; flex-direction: column; align-items: center; gap: 30px; }
+  h1 { color: #9ca3af; font-size: 1em; font-weight: 400; letter-spacing: 1px; text-transform: uppercase; }
+
+  .row { display: flex; gap: 40px; align-items: flex-start; flex-wrap: wrap; justify-content: center; }
+  .col { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .col-label { color: #6b7280; font-size: 0.78em; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+
+  .ha-card {
+    width: 240px;
+    background: #1f2937;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    color: #e5e7eb;
+    padding: 16px;
+  }
+
+  .sensor-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #374151;
+  }
+  .sensor-row:last-child { border-bottom: none; }
+
+  .sensor-left { display: flex; align-items: center; gap: 10px; }
+  .sensor-icon { font-size: 1.4em; }
+  .sensor-name { font-size: 0.85em; color: #9ca3af; }
+  .sensor-value { font-size: 0.9em; font-weight: 500; }
+
+  .value-normal { color: #34d399; }
+  .value-wash   { color: #fbbf24; }
+  .value-replace{ color: #f87171; }
+  .value-raw    { color: #ef4444; font-family: monospace; font-size: 0.82em; background: #374151; padding: 2px 6px; border-radius: 4px; }
+
+  .arrow { color: #374151; font-size: 2.5em; padding-top: 80px; }
+
+  .card-title { font-size: 0.95em; font-weight: 500; color: #f3f4f6; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #374151; }
+</style>
+</head>
+<body>
+
+<h1>Aperçu — Traduction "Filtre état"</h1>
+
+<div class="row">
+
+  <!-- AVANT -->
+  <div class="col">
+    <div class="col-label">Avant (valeurs brutes)</div>
+    <div class="ha-card">
+      <div class="card-title">Clim Cloé — Capteurs</div>
+
+      <div class="sensor-row">
+        <div class="sensor-left">
+          <span class="sensor-icon">💧</span>
+          <span class="sensor-name">Humidité</span>
+        </div>
+        <span class="sensor-value">55 %</span>
+      </div>
+
+      <div class="sensor-row">
+        <div class="sensor-left">
+          <span class="sensor-icon">🔧</span>
+          <span class="sensor-name">Filtre usage</span>
+        </div>
+        <span class="sensor-value">42 %</span>
+      </div>
+
+      <div class="sensor-row">
+        <div class="sensor-left">
+          <span class="sensor-icon">🔴</span>
+          <span class="sensor-name">Filtre état</span>
+        </div>
+        <span class="value-raw">wash</span>
+      </div>
+    </div>
+
+    <div class="ha-card" style="margin-top:4px;">
+      <div class="card-title">Autres exemples</div>
+      <div class="sensor-row">
+        <div class="sensor-left">
+          <span class="sensor-icon">🟢</span>
+          <span class="sensor-name">Filtre état</span>
+        </div>
+        <span class="value-raw">normal</span>
+      </div>
+      <div class="sensor-row">
+        <div class="sensor-left">
+          <span class="sensor-icon">🔴</span>
+          <span class="sensor-name">Filtre état</span>
+        </div>
+        <span class="value-raw">replace</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- FLÈCHE -->
+  <div class="arrow">→</div>
+
+  <!-- APRÈS -->
+  <div class="col">
+    <div class="col-label">Après (traduction française)</div>
+    <div class="ha-card">
+      <div class="card-title">Clim Cloé — Capteurs</div>
+
+      <div class="sensor-row">
+        <div class="sensor-left">
+          <span class="sensor-icon">💧</span>
+          <span class="sensor-name">Humidité</span>
+        </div>
+        <span class="sensor-value">55 %</span>
+      </div>
+
+      <div class="sensor-row">
+        <div class="sensor-left">
+          <span class="sensor-icon">🔧</span>
+          <span class="sensor-name">Filtre usage</span>
+        </div>
+        <span class="sensor-value">42 %</span>
+      </div>
+
+      <div class="sensor-row">
+        <div class="sensor-left">
+          <span class="sensor-icon">🟡</span>
+          <span class="sensor-name">Filtre état</span>
+        </div>
+        <span class="value-wash">À laver</span>
+      </div>
+    </div>
+
+    <div class="ha-card" style="margin-top:4px;">
+      <div class="card-title">Autres exemples</div>
+      <div class="sensor-row">
+        <div class="sensor-left">
+          <span class="sensor-icon">🟢</span>
+          <span class="sensor-name">Filtre état</span>
+        </div>
+        <span class="value-normal">Normal</span>
+      </div>
+      <div class="sensor-row">
+        <div class="sensor-left">
+          <span class="sensor-icon">🔴</span>
+          <span class="sensor-name">Filtre état</span>
+        </div>
+        <span class="value-replace">À remplacer</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<p style="color:#6b7280; font-size:0.8em; text-align:center; max-width:420px; line-height:1.6;">
+  <strong style="color:#9ca3af;">Traductions appliquées :</strong><br>
+  <code style="background:#1f2937; padding:2px 6px; border-radius:4px;">normal</code> → <span style="color:#34d399;">Normal</span> &nbsp;|&nbsp;
+  <code style="background:#1f2937; padding:2px 6px; border-radius:4px;">wash</code> → <span style="color:#fbbf24;">À laver</span> &nbsp;|&nbsp;
+  <code style="background:#1f2937; padding:2px 6px; border-radius:4px;">replace</code> → <span style="color:#f87171;">À remplacer</span>
+</p>
+
+</body>
+</html>

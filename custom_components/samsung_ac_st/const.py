@@ -3,7 +3,19 @@
 DOMAIN = "samsung_ac_st"
 CONF_TOKEN = "token"
 
+# OAuth2 credentials (stored in config entry after first auth)
+CONF_CLIENT_ID = "client_id"
+CONF_CLIENT_SECRET = "client_secret"
+CONF_REFRESH_TOKEN = "refresh_token"
+CONF_TOKEN_EXPIRES_AT = "token_expires_at"
+CONF_APP_ID = "app_id"
+
 ST_API_BASE = "https://api.smartthings.com/v1"
+ST_AUTH_URL = "https://api.smartthings.com/oauth/authorize"
+ST_TOKEN_URL = "https://auth-global.api.smartthings.com/oauth/token"
+OAUTH_CALLBACK_PATH = "/api/samsung_ac_st/oauth/callback"
+OAUTH_SCOPES = "r:devices:* x:devices:*"
+
 POLL_INTERVAL = 30  # seconds
 
 # SmartThings capabilities
