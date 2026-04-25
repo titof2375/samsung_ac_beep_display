@@ -147,12 +147,16 @@ class SamsungAcConfigFlow(ConfigFlow, domain=DOMAIN):
             "description": "Home Assistant integration for Samsung AC climate control",
             "appType": "API_ONLY",
             "classifications": ["AUTOMATION"],
+            "apiOnly": {},
             "oauth": {
                 "clientName": "Samsung AC HA",
                 "scope": OAUTH_SCOPES.split(),
                 "redirectUris": [self._redirect_uri],
             },
         }
+
+        _LOGGER.debug("Création SmartApp — payload: %s", payload)
+        _LOGGER.debug("Création SmartApp — redirect_uri: %s", self._redirect_uri)
 
         try:
             async with session.post(
@@ -164,15 +168,18 @@ class SamsungAcConfigFlow(ConfigFlow, domain=DOMAIN):
                 json=payload,
                 timeout=aiohttp.ClientTimeout(total=30),
             ) as r:
+                body = await r.text()
+                _LOGGER.error(
+                    "Création SmartApp — HTTP %s — réponse: %s", r.status, body[:500]
+                )
                 if r.status == 401:
                     return self.async_abort(reason="invalid_auth")
                 if r.status == 403:
                     return self.async_abort(reason="insufficient_permissions")
                 if r.status not in (200, 201):
-                    body = await r.text()
-                    _LOGGER.error("Création SmartApp échouée %s: %s", r.status, body)
                     return self.async_abort(reason="app_creation_failed")
-                data = await r.json()
+                import json as _json
+                data = _json.loads(body)
         except aiohttp.ClientError as err:
             _LOGGER.error("Connexion impossible lors de la création SmartApp: %s", err)
             return self.async_abort(reason="cannot_connect")
