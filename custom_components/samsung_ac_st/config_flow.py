@@ -56,14 +56,15 @@ class SamsungAcOAuthCallbackView(HomeAssistantView):
                 status=400,
             )
 
+        _LOGGER.debug("OAuth callback reçu — flow_id=%s code_len=%d", flow_id, len(code))
         try:
             await hass.config_entries.flow.async_configure(
                 flow_id, user_input={"code": code}
             )
         except Exception as err:  # noqa: BLE001
-            _LOGGER.error("Erreur lors de la configuration OAuth: %s", err)
+            _LOGGER.error("OAuth callback — async_configure échoué: %s (%s)", err, type(err).__name__)
             return web.Response(
-                text="<html><body>Erreur de configuration.</body></html>",
+                text=f"<html><body>Erreur de configuration: {err}</body></html>",
                 content_type="text/html",
                 status=500,
             )
