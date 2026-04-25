@@ -129,6 +129,7 @@ class SamsungAcConfigFlow(ConfigFlow, domain=DOMAIN):
     async def async_step_create_app(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
+        import hashlib
         import json as _json
 
         session = async_get_clientsession(self.hass)
@@ -145,23 +146,27 @@ class SamsungAcConfigFlow(ConfigFlow, domain=DOMAIN):
             "Content-Type": "application/json",
         }
 
-        # ── 1. Chercher un app existant samsung-ac-ha-* ──────────────────
+        # Nom déterministe basé sur l'URL de HA — stable d'une tentative à l'autre
+        ha_hash = hashlib.md5(ha_url.encode()).hexdigest()[:16]
+        app_name = f"samsung-ac-ha-{ha_hash}"
+        _LOGGER.debug("Nom déterministe SmartApp: %s", app_name)
+
+        # ── 1. Chercher l'app par son nom déterministe ────────────────────
         existing_app_id = None
         existing_client_id = None
         try:
             async with session.get(
-                f"{ST_API_BASE}/apps",
-                headers=headers,
+                f"{ST_API_BASE}/apps/{app_name}",
+                headers={"Authorization": f"Bearer {self._pat}"},
                 timeout=aiohttp.ClientTimeout(total=15),
             ) as r:
+                body = await r.text()
+                _LOGGER.debug("GET app '%s' — HTTP %s: %s", app_name, r.status, body[:200])
                 if r.status == 200:
-                    apps_data = await r.json()
-                    for app in apps_data.get("items", []):
-                        if app.get("appName", "").startswith("samsung-ac-ha-"):
-                            existing_app_id = app["appId"]
-                            existing_client_id = app.get("oauthClientId") or app.get("clientId")
-                            _LOGGER.debug("SmartApp existant trouvé: %s", existing_app_id)
-                            break
+                    app_data = _json.loads(body)
+                    existing_app_id = app_data.get("appId")
+                    existing_client_id = app_data.get("oauthClientId")
+                    _LOGGER.debug("SmartApp existant trouvé: %s", existing_app_id)
         except aiohttp.ClientError:
             pass
 
@@ -185,7 +190,7 @@ class SamsungAcConfigFlow(ConfigFlow, domain=DOMAIN):
             except aiohttp.ClientError:
                 pass
 
-            # Régénérer le client_secret (seule façon de le récupérer après création)
+            # Régénérer le client_secret
             try:
                 async with session.post(
                     f"{ST_API_BASE}/apps/{existing_app_id}/oauth/generate",
@@ -203,12 +208,11 @@ class SamsungAcConfigFlow(ConfigFlow, domain=DOMAIN):
                 _LOGGER.error("Erreur régénération credentials: %s", err)
 
             if not self._client_id or not self._client_secret:
-                _LOGGER.error("Impossible d'obtenir les credentials pour l'app existante %s", existing_app_id)
+                _LOGGER.error("Impossible de régénérer les credentials (appId=%s)", existing_app_id)
                 return self.async_abort(reason="app_creation_failed")
 
-        # ── 2b. Pas d'app existant → créer un nouveau ────────────────────
+        # ── 2b. App inexistant → créer ────────────────────────────────────
         else:
-            app_name = f"samsung-ac-ha-{uuid.uuid4().hex}"
             payload = {
                 "appName": app_name,
                 "displayName": "Samsung AC HA Integration",
@@ -236,6 +240,10 @@ class SamsungAcConfigFlow(ConfigFlow, domain=DOMAIN):
                         return self.async_abort(reason="invalid_auth")
                     if r.status == 403:
                         return self.async_abort(reason="insufficient_permissions")
+                    if r.status == 422:
+                        # L'app existe mais on ne peut pas le lire — tenter de régénérer par nom
+                        _LOGGER.warning("App '%s' existe mais GET échoué — tentative de récupération via oauth/generate", app_name)
+                        return self.async_abort(reason="app_exists_no_read")
                     if r.status not in (200, 201):
                         _LOGGER.error("Création SmartApp échouée %s: %s", r.status, body[:400])
                         return self.async_abort(reason="app_creation_failed")
@@ -252,8 +260,6 @@ class SamsungAcConfigFlow(ConfigFlow, domain=DOMAIN):
         if not self._client_id or not self._client_secret:
             _LOGGER.error("client_id/client_secret manquants")
             return self.async_abort(reason="app_creation_failed")
-
-        self._app_id = self._app_id
 
         if not self._client_id or not self._client_secret:
             _LOGGER.error("client_id/client_secret manquants dans la réponse: %s", data)

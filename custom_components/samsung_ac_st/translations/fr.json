@@ -31,7 +31,8 @@
       "insufficient_permissions": "Droits insuffisants — ajoutez le scope 'apps:write' à votre token SmartThings",
       "app_creation_failed": "Échec de la création de l'application SmartThings — vérifiez que le scope 'apps:write' est coché",
       "oauth_error": "Erreur lors de l'autorisation Samsung — réessayez",
-      "token_exchange_failed": "Échec de l'échange du code OAuth — réessayez"
+      "token_exchange_failed": "Échec de l'échange du code OAuth — réessayez",
+      "app_exists_no_read": "Un app SmartThings existe déjà mais ne peut pas être lu. Ajoutez le scope 'r:apps:*' à votre token PAT et réessayez."
     }
   },
   "entity": {
