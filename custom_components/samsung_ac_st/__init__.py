@@ -14,7 +14,6 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import SmartThingsApiClient, SmartThingsAuthError, SmartThingsConnectionError
 from .const import (
-    CONF_APP_ID,
     CONF_CLIENT_ID,
     CONF_CLIENT_SECRET,
     CONF_REFRESH_TOKEN,
