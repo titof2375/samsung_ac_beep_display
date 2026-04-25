@@ -116,10 +116,24 @@ class SamsungAcConfigFlow(ConfigFlow, domain=DOMAIN):
     # ------------------------------------------------------------------
 
     async def _async_start_oauth(self) -> ConfigFlowResult:
-        try:
-            ha_url = get_url(self.hass, allow_internal=True, allow_ip=True)
-        except NoURLAvailableError:
+        # SmartThings exige HTTPS — on préfère l'URL externe
+        ha_url = None
+        for kwargs in [
+            {"allow_internal": False, "prefer_external": True},
+            {"allow_internal": True, "allow_ip": False},
+            {"allow_internal": True, "allow_ip": True},
+        ]:
+            try:
+                ha_url = get_url(self.hass, **kwargs)
+                if ha_url.startswith("https://"):
+                    break
+            except NoURLAvailableError:
+                continue
+
+        if not ha_url:
             return self.async_abort(reason="no_url_available")
+        if not ha_url.startswith("https://"):
+            return self.async_abort(reason="https_required")
 
         self._redirect_uri = f"{ha_url}{OAUTH_CALLBACK_PATH}"
         _register_oauth_view(self.hass)

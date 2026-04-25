@@ -28,7 +28,8 @@
       "reauth_successful": "Reconnexion réussie",
       "no_url_available": "URL de Home Assistant introuvable. Configurez-la dans Paramètres → Système → Réseau.",
       "oauth_error": "Erreur lors de l'autorisation Samsung — vérifiez vos identifiants et réessayez",
-      "token_exchange_failed": "Échec de l'échange du code OAuth — vérifiez que l'URL de callback est correctement configurée"
+      "token_exchange_failed": "Échec de l'échange du code OAuth — vérifiez que l'URL de callback est correctement configurée",
+      "https_required": "SmartThings exige une URL HTTPS. Configurez votre URL externe dans Paramètres → Système → Réseau."
     }
   },
   "entity": {
